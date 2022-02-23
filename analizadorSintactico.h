@@ -1,7 +1,3 @@
-//
-// Created by nico on 23/2/22.
-//
-
 #ifndef P1_ANALIZADORSINTACTICO_H
 #define P1_ANALIZADORSINTACTICO_H
 
