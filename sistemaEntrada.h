@@ -6,5 +6,7 @@ void abrirFicheiro(char *nomeFicheiro);
 
 char segCaracter();
 
+void pecharFicheiro();
+
 
 #endif

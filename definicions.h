@@ -2,10 +2,10 @@
 #define P1_DEFINICIONS_H
 
 
-struct CompLexico {
-    int compLexico;
+typedef struct compLexico {
+    int comp_lexico;
     char *lexema;
-};
+} CompLexico;
 
 #define IDENTIFICADOR 300
 
