@@ -1,10 +1,5 @@
 #include "analizadorLexico.h"
 
-// estrutura
-struct CompLexico {
-    int valorNum;
-    char* lexema;
-};
 
 
 //devolve a estrutura
