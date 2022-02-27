@@ -5,12 +5,15 @@
 
 FILE *f_codigo_fonte;
 
-void abrirFicheiro(char *nomeFicheiro) {
+int abrirFicheiro(char *nomeFicheiro) {
     f_codigo_fonte = fopen(nomeFicheiro, "r");
 
     if (f_codigo_fonte == NULL) {
         printf("Non se puido abrir o ficheiro co código fonte correctamente.\n");
+        return 1;
     }
+
+    return 0;
 }
 
 char segCaracter() {

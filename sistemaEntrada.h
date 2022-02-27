@@ -2,7 +2,7 @@
 #define P1_SISTEMAENTRADA_H
 
 
-void abrirFicheiro(char *nomeFicheiro);
+int abrirFicheiro(char *nomeFicheiro);
 
 char segCaracter();
 
