@@ -7,6 +7,7 @@ typedef struct compLexico {
     char *lexema;
 } CompLexico;
 
+
 #define IDENTIFICADOR 300
 
 #define BREAK 301

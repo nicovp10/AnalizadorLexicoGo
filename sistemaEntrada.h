@@ -2,9 +2,15 @@
 #define P1_SISTEMAENTRADA_H
 
 
-int abrirFicheiro(char *nomeFicheiro);
+int inicializar(char *nomeFicheiro);
+
+void cargarSigBloque();
+
+void cambiarLexema();
 
 char segCaracter();
+
+void devolverCaracter(char c);
 
 void pecharFicheiro();
 

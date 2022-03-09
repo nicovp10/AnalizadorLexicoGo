@@ -1,4 +1,4 @@
 #ifndef P1_TABOASIMBOLOS_H
 #define P1_TABOASIMBOLOS_H
 
-#endif //P1_TABOASIMBOLOS_H
+#endif
