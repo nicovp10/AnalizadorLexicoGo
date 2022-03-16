@@ -6,7 +6,7 @@
 
 abb TS;
 
-void incializarTS() {
+void iniciarTS() {
     CompLexico keywords[] = {
             {BREAK,       "break"},
             {CASE,        "case"},

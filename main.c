@@ -14,13 +14,13 @@ int main(int argc, char **argv) {
     }
 
 
-    inicializarFicheiro(argv[1]);
-    incializarTS();
+    iniciarSistemaEntrada(argv[1]);
+    iniciarTS();
 
     analizadorSintactico();
 
     finalizarTS();
-    finalizarFicheiro();
+    finalizarSistemaEntrada();
 
 
     exit(EXIT_SUCCESS);

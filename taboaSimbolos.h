@@ -4,7 +4,7 @@
 #include "definicions.h"
 
 
-void incializarTS();
+void iniciarTS();
 
 CompLexico buscar_insertar();
 

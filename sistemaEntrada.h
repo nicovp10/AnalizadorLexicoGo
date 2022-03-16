@@ -2,17 +2,13 @@
 #define P1_SISTEMAENTRADA_H
 
 
-void inicializarFicheiro(char *nomeFicheiro);
-
-void cargarSigBloque();
-
-void cambiarLexema();
+void iniciarSistemaEntrada(char *nomeFicheiro);
 
 char segCaracter();
 
 void devolverCaracter(char c);
 
-void finalizarFicheiro();
+void finalizarSistemaEntrada();
 
 
 #endif

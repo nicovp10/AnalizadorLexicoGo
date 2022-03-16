@@ -16,7 +16,7 @@ void crear(abb *A);
 
 void destruir(abb *A);
 
-unsigned es_vacio(abb A);
+unsigned _vacia(abb A);
 
 void buscar_nodo(abb A, tipoclave cl, tipoelem *nodo);
 
