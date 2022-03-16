@@ -47,6 +47,7 @@ CompLexico buscar_insertar(CompLexico comp_input) {
     // Busca na TS un lexema concreto devolvéndoo en comp_busqueda
     buscar_nodo(TS, comp_input.lexema, &comp_busqueda);
     if (comp_busqueda.lexema == NULL) { // Se non está na TS, insértase e devólvese
+        comp_input.comp_lexico = ID;
         insertar(&TS, comp_input);
         return comp_input;
     }
