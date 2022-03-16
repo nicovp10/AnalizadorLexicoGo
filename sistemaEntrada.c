@@ -40,6 +40,7 @@ void _cambiarBloqueActivo() {
         buf.activo = 1;
     } else {
         buf.activo = 0;
+        // dianteiro vólvese a 0 porque se non habería overflow, sería algo similar a facer o módulo
         buf.dianteiro = 0;
     }
 }
@@ -121,7 +122,7 @@ void devolverCaracter() {
 
 // Acepta o lexema que está léndose actualmente, reubicando os punteiros do búffer
 void aceptarLexema() {
-
+    buf.inicio = buf.dianteiro;
 }
 
 // Finalización do sistema de entrada
