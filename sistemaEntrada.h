@@ -2,7 +2,7 @@
 #define P1_SISTEMAENTRADA_H
 
 
-int inicializar(char *nomeFicheiro);
+void inicializarFicheiro(char *nomeFicheiro);
 
 void cargarSigBloque();
 
@@ -12,7 +12,7 @@ char segCaracter();
 
 void devolverCaracter(char c);
 
-void pecharFicheiro();
+void finalizarFicheiro();
 
 
 #endif

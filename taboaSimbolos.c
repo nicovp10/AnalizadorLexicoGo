@@ -1,19 +1,60 @@
+#include <stdlib.h>
+
 #include "taboaSimbolos.h"
+#include "abb.h"
 
 
+abb TS;
 
-// almacena palabras clave e ids. Cando se busca algo e non se atopa insértase sempre como componente léxico ID
+void incializarTS() {
+    CompLexico keywords[] = {
+            {BREAK,       "break"},
+            {CASE,        "case"},
+            {CHAN,        "chan"},
+            {CONST,       "const"},
+            {CONTINUE,    "continue"},
+            {DEFAULT,     "default"},
+            {DEFER,       "defer"},
+            {ELSE,        "else"},
+            {FALLTHROUGH, "fallthrough"},
+            {FOR,         "for"},
+            {FUNC,        "func"},
+            {GO,          "go"},
+            {GOTO,        "goto"},
+            {IF,          "if"},
+            {IMPORT,      "import"},
+            {INTERFACE,   "interface"},
+            {MAP,         "map"},
+            {PACKAGE,     "package"},
+            {RANGE,       "range"},
+            {RETURN,      "return"},
+            {SELECT,      "select"},
+            {STRUCT,      "struct"},
+            {SWITCH,      "switch"},
+            {TYPE,        "type"},
+            {VAR,         "var"}
+    };
 
-void incializar() {
-
+    crear(&TS);
+    for (int i = 0; i < (sizeof(keywords) / sizeof(CompLexico)); i++) {
+        insertar(&TS, keywords[i]);
+    }
 }
 
+CompLexico buscar_insertar(CompLexico comp_input) {
+    CompLexico comp_busqueda = {0, NULL};
 
-void buscar_insertar() {
+    // Busca na TS un lexema concreto devolvéndoo en comp_busqueda
+    buscar_nodo(TS, comp_input.lexema, &comp_busqueda);
+    if (comp_busqueda.lexema == NULL) { // Se non está na TS, insértase e devólvese
+        insertar(&TS, comp_input);
+        return comp_input;
+    }
 
+    // Se está na TS, devólvese o atopado
+    return comp_busqueda;
 }
 
-
-void finalizar() {
-
+void finalizarTS() {
+    destruir(&TS);
 }

@@ -8,7 +8,7 @@ typedef struct compLexico {
 } CompLexico;
 
 
-#define IDENTIFICADOR 300
+#define ID 300
 
 #define BREAK 301
 #define CASE 302
