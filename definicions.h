@@ -2,7 +2,7 @@
 #define P1_DEFINICIONS_H
 
 
-typedef struct compLexico {
+typedef struct {
     int comp_lexico;
     char *lexema;
 } CompLexico;

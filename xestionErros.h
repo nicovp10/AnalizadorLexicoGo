@@ -4,7 +4,7 @@
 
 #define FICHEIRO_NON_ATOPADO 1
 
-void notificarErro(int codigo);
+void lanzarErro(int codigo);
 
 
 #endif

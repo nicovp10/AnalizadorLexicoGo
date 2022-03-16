@@ -3,10 +3,11 @@
 #include "xestionErros.h"
 
 
-void notificarErro(int codigo) {
+void lanzarErro(int codigo) {
     switch (codigo) {
         case FICHEIRO_NON_ATOPADO:
-            printf("Non se atopou o ficheiro de código fonte.");
+            printf("Non se atopou o ficheiro de código fonte.\n");
+            break;
         default:
             printf("Nunca debería chegar aquí");
     }

@@ -6,7 +6,9 @@ void iniciarSistemaEntrada(char *nomeFicheiro);
 
 char segCaracter();
 
-void devolverCaracter(char c);
+void devolverCaracter();
+
+void aceptarLexema();
 
 void finalizarSistemaEntrada();
 
