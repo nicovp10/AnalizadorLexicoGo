@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "sistemaEntrada.h"
 #include "xestionErros.h"
@@ -88,9 +89,10 @@ char segCaracter() {
         if ((c = buf.A[buf.dianteiro]) == EOF) {    // Se é EOF hai dúas opcións: fin de ficheiro ou fin de bloque
             // Compróbase se se chegou ao fin do ficheiro de código fonte
             if (!feof(f_codigo_fonte)) {    // Se non se chegou ao fin de ficheiro, chegouse ao fin de bloque
-                if (buf.cargar) {       // Se se precisa cargar, cárgase o seguinte bloque
+                if (buf.cargar)      // Se se precisa cargar, cárgase o seguinte bloque
                     _cargarSegBloque();
-                } else buf.cargar = 1;  // Se non se precisaba, indícase que se precisará a continuación
+                else
+                    buf.cargar = 1;  // Se non se precisaba, indícase que se precisará a continuación
                 _cambiarBloqueActivo(); // Cámbiase de bloque activo
                 c = segCaracter();      // Chamada recursiva á función para ler un caracter xa que nesta chamada leuse o EOF de final de bloque
             }
@@ -101,15 +103,18 @@ char segCaracter() {
         else buf.dianteiro++;
     } else { // Se é o bloque B:
         // O proceso é análogo ao do bloque A
-        if ((c = buf.B[buf.dianteiro - TAM]) == EOF) {
+        if ((c = buf.B[buf.dianteiro - TAM]) == EOF) {  // Réstase TAM para adaptar o valor ao bloque B
             if (!feof(f_codigo_fonte)) {
-                if (buf.cargar) {
+                if (buf.cargar)
                     _cargarSegBloque();
-                } else buf.cargar = 1;
+                else
+                    buf.cargar = 1;
                 _cambiarBloqueActivo();
                 c = segCaracter();
-            } else buf.dianteiro++;
-        } else buf.dianteiro++;
+            } else
+                buf.dianteiro++;
+        } else
+            buf.dianteiro++;
     }
 
     return c;
@@ -117,11 +122,71 @@ char segCaracter() {
 
 // Devolución de caracter, retrocedendo na memoria intermedia
 void devolverCaracter() {
-
+    // Realízanse diferentes comprobacións en función do bloque activo
+    if (buf.activo == 0) {  // Se é o bloque A:
+        // Compróbase a que elemento do bloque apunta o punteiro dianteiro
+        if (buf.dianteiro == 0) {   // Se apunta ao primeiro elemento do bloque:
+            _cambiarBloqueActivo();
+            buf.cargar = 0; // Indícase que non se cargue cando se volve ao bloque do que se acaba de retroceder
+            buf.dianteiro = 2 * TAM;    // Modifícase o punteiro dianteiro para adaptarse ao bloque B
+        } else
+            buf.dianteiro--; // Se non apunta ao primeiro elemento, retrocédese unha posición soamente
+    } else {    // Se é o bloque B:
+        // O proceso é análogo ao bloque A
+        if (buf.dianteiro == TAM) {
+            _cambiarBloqueActivo();
+            buf.cargar = 0;
+            buf.dianteiro = TAM - 1;
+        } else
+            buf.dianteiro--;
+    }
 }
 
 // Acepta o lexema que está léndose actualmente, reubicando os punteiros do búffer
-void aceptarLexema() {
+void aceptarLexema(CompLexico *comp) {
+    // Compróbanse a posición relativa entre ambos punteiros do buffer
+    // As dúas primeiras comprobacións son se os punteiros están en bloques distintos
+    if (buf.inicio < TAM && buf.dianteiro >= TAM) {         // Se inicio está en A e dianteiro en B:
+        // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
+        comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
+
+        // Cópiase a parte do bloque A no campo do lexema
+        strncpy(comp->lexema, buf.A + buf.inicio, TAM - buf.inicio);
+
+        // Concaténase a parte do bloque B no campo do lexema
+        strncat(comp->lexema, buf.B, buf.dianteiro - TAM);
+    } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
+        // Resérvase a memoria restando TAM menos inicio máis dianteiro para obter o número de chars a reservar
+        // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
+        comp->lexema = malloc((TAM - buf.inicio + buf.dianteiro) * sizeof(char));
+
+        strncpy(comp->lexema, buf.B + buf.inicio, buf.inicio - TAM);
+        strncat(comp->lexema, buf.A, TAM - buf.dianteiro);
+    }
+    // As dúas últimas comprobacións son se os punteiros están no mesmo bloque
+    else if (buf.inicio < buf.dianteiro) {  // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
+        comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
+
+        // Compróbase o bloque no que está para a selección
+        if (buf.activo == 0)
+            strncpy(comp->lexema, buf.A + buf.inicio, buf.dianteiro - buf.inicio);
+        else
+            strncpy(comp->lexema, buf.B + buf.inicio, buf.dianteiro - buf.inicio);
+
+    } else {                                // Se os dous punteiros están no mesmo bloque e inicio está despois que dianteiro:
+        comp->lexema = malloc((TAM - buf.inicio + buf.dianteiro) * sizeof(char));
+        // TODO comprobar mallocs
+        if (buf.activo == 0) {
+            strncpy(comp->lexema, buf.A + buf.inicio, TAM - buf.inicio);
+            strncat(comp->lexema, buf.B, TAM);
+            strncat(comp->lexema, buf.A, TAM - buf.dianteiro);
+        } else {
+            strncpy(comp->lexema, buf.B + buf.inicio, buf.inicio - TAM);
+            strncat(comp->lexema, buf.A, TAM);
+            strncat(comp->lexema, buf.B, buf.dianteiro - TAM);
+        }
+    }
+
     buf.inicio = buf.dianteiro;
 }
 

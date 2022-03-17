@@ -22,6 +22,7 @@ CompLexico segCompLexico() {
     char c;
 
     while (((c = segCaracter()) != EOF) && (erro == 0)) {
+        printf("%c", c);
         if (isalpha(c) || c == '_') {
             _alfanumerico();
         } else if (isdigit(c)) {
