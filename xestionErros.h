@@ -3,6 +3,7 @@
 
 
 #define FICHEIRO_NON_ATOPADO 1
+#define TAM_LEXEMA_EXCEDIDO 2
 
 void lanzarErro(int codigo);
 

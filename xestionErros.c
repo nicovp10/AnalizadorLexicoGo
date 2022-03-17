@@ -8,6 +8,9 @@ void lanzarErro(int codigo) {
         case FICHEIRO_NON_ATOPADO:
             printf("Non se atopou o ficheiro de código fonte.\n");
             break;
+        case TAM_LEXEMA_EXCEDIDO:
+            printf("Tamaño máximo de lexema excedido.\n");
+            break;
         default:
             printf("Nunca debería chegar aquí");
     }

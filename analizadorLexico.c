@@ -6,6 +6,9 @@
 #include "sistemaEntrada.h"
 
 
+CompLexico comp = {0, NULL};
+
+
 void _alfanumerico() {
 
 
@@ -16,20 +19,28 @@ void _numerico() {
 }
 
 
+void _limparComp() {
+    // Se xa se lera un lexema, libérase a memoria asociada e reestablécense os valores
+    if (comp.lexema != NULL) {
+        free(comp.lexema);
+        comp.comp_lexico = 0;
+        comp.lexema = NULL;
+    }
+}
+
 CompLexico segCompLexico() {
-    CompLexico comp = {0, NULL};
-    int erro = 0;
     char c;
 
-    while (((c = segCaracter()) != EOF) && (erro == 0)) {
-        printf("%c", c);
-        if (isalpha(c) || c == '_') {
-            _alfanumerico();
-        } else if (isdigit(c)) {
-            _numerico();
-        } else {
+    _limparComp();
 
-        }
+    while ((c = segCaracter()) != EOF) {
+            if (isalpha(c) || c == '_') {
+                _alfanumerico();
+            } else if (isdigit(c)) {
+                _numerico();
+            } else {
+
+            }
     }
 
 

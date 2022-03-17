@@ -5,7 +5,7 @@
 #include "sistemaEntrada.h"
 #include "xestionErros.h"
 
-#define TAM 16
+#define TAM 32
 
 
 typedef struct {
@@ -128,7 +128,7 @@ void devolverCaracter() {
         if (buf.dianteiro == 0) {   // Se apunta ao primeiro elemento do bloque:
             _cambiarBloqueActivo();
             buf.cargar = 0; // Indícase que non se cargue cando se volve ao bloque do que se acaba de retroceder
-            buf.dianteiro = 2 * TAM;    // Modifícase o punteiro dianteiro para adaptarse ao bloque B
+            buf.dianteiro = 2 * TAM - 1;    // Modifícase o punteiro dianteiro para adaptarse ao bloque B
         } else
             buf.dianteiro--; // Se non apunta ao primeiro elemento, retrocédese unha posición soamente
     } else {    // Se é o bloque B:
@@ -158,12 +158,12 @@ void aceptarLexema(CompLexico *comp) {
     } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
         // Resérvase a memoria restando TAM menos inicio máis dianteiro para obter o número de chars a reservar
         // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
-        comp->lexema = malloc((TAM - buf.inicio + buf.dianteiro) * sizeof(char));
+        comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
 
-        strncpy(comp->lexema, buf.B + buf.inicio, buf.inicio - TAM);
-        strncat(comp->lexema, buf.A, TAM - buf.dianteiro);
+        strncpy(comp->lexema, buf.B + buf.inicio - TAM, 2 * TAM - buf.inicio);
+        strncat(comp->lexema, buf.A, buf.dianteiro);
     }
-    // As dúas últimas comprobacións son se os punteiros están no mesmo bloque
+        // As dúas últimas comprobacións son se os punteiros están no mesmo bloque
     else if (buf.inicio < buf.dianteiro) {  // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
         comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
 
@@ -171,23 +171,34 @@ void aceptarLexema(CompLexico *comp) {
         if (buf.activo == 0)
             strncpy(comp->lexema, buf.A + buf.inicio, buf.dianteiro - buf.inicio);
         else
-            strncpy(comp->lexema, buf.B + buf.inicio, buf.dianteiro - buf.inicio);
-
+            strncpy(comp->lexema, buf.B + buf.inicio - TAM, buf.dianteiro - buf.inicio);
     } else {                                // Se os dous punteiros están no mesmo bloque e inicio está despois que dianteiro:
-        comp->lexema = malloc((TAM - buf.inicio + buf.dianteiro) * sizeof(char));
-        // TODO comprobar mallocs
+        comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
+
         if (buf.activo == 0) {
             strncpy(comp->lexema, buf.A + buf.inicio, TAM - buf.inicio);
             strncat(comp->lexema, buf.B, TAM);
-            strncat(comp->lexema, buf.A, TAM - buf.dianteiro);
+            strncat(comp->lexema, buf.A, buf.dianteiro);
         } else {
-            strncpy(comp->lexema, buf.B + buf.inicio, buf.inicio - TAM);
+            strncpy(comp->lexema, buf.B + buf.inicio - TAM, 2 * TAM - buf.inicio);
             strncat(comp->lexema, buf.A, TAM);
             strncat(comp->lexema, buf.B, buf.dianteiro - TAM);
         }
     }
 
     buf.inicio = buf.dianteiro;
+
+    // Compróbase se o lexema exede o tamaño máximo
+    /*
+     * Este tamaño será o tamaño do lexema nun dos peores casos: o lexema está
+     * na última posición nun bloque e no bloque seguinte completo. O tamaño deste
+     * lexema será o máximo permitido
+     */
+    if (strlen(comp->lexema) >= TAM + 1) {
+        free(comp->lexema);
+        comp->lexema = NULL;
+        lanzarErro(TAM_LEXEMA_EXCEDIDO);
+    }
 }
 
 // Finalización do sistema de entrada
