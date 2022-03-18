@@ -9,6 +9,8 @@ void iniciarSistemaEntrada(char *nomeFicheiro);
 
 char segCaracter();
 
+void ignorarCaracter();
+
 void devolverCaracter();
 
 void aceptarLexema(CompLexico *comp);

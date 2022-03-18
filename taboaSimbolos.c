@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "taboaSimbolos.h"
 #include "abb.h"
@@ -7,8 +9,20 @@
 abb TS;
 
 
+// Recorrido inorden da árbore
+void _auxImprimir(abb A) {
+    tipoelem E;
+    if (!vacia(A)) {
+        _auxImprimir(izq(A));
+        ler(A, &E);
+        printf("\t< %d, %s >\n", E.comp_lexico, E.lexema);
+        _auxImprimir(der(A));
+    }
+}
+
+
 void iniciarTS() {
-    CompLexico keywords[] = {
+    tipoelem keywords[] = {
             {BREAK,       "break"},
             {CASE,        "case"},
             {CHAN,        "chan"},
@@ -37,26 +51,32 @@ void iniciarTS() {
     };
 
     crear(&TS);
-    for (int i = 0; i < (sizeof(keywords) / sizeof(CompLexico)); i++) {
+    for (int i = 0; i < (sizeof(keywords) / sizeof(tipoelem)); i++) {
         insertar(&TS, keywords[i]);
     }
 }
 
-CompLexico buscar_insertar(CompLexico comp_input) {
-    CompLexico comp_busqueda = {0, NULL};
+void buscar_insertar(CompLexico *comp) {
+    tipoelem comp_busqueda = {0, NULL};
 
     // Busca na TS un lexema concreto devolvéndoo en comp_busqueda
-    buscar_nodo(TS, comp_input.lexema, &comp_busqueda);
+    buscar_nodo(TS, comp->lexema, &comp_busqueda);
     if (comp_busqueda.lexema == NULL) { // Se non está na TS, insértase e devólvese
-        comp_input.comp_lexico = ID;
-        insertar(&TS, comp_input);
-        return comp_input;
+        comp->comp_lexico = ID;
+        insertar(&TS, *comp);
+    } else {
+        // Se está na TS, devólvese o atopado
+        comp->comp_lexico = comp_busqueda.comp_lexico;
+        strncpy(comp->lexema, comp_busqueda.lexema, strlen(comp_busqueda.lexema));
     }
-
-    // Se está na TS, devólvese o atopado
-    return comp_busqueda;
 }
 
 void finalizarTS() {
     destruir(&TS);
+}
+
+void imprimirTS() {
+    printf("\n----- TÁBOA DE SÍMBOLOS -----\n");
+    _auxImprimir(TS);
+    printf("-----------------------------\n\n");
 }

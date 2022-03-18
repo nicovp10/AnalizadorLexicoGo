@@ -9,14 +9,20 @@ typedef char *tipoclave;
 
 typedef CompLexico tipoelem;
 
-typedef struct celda *abb; // Tipo opaco
+typedef struct celda *abb;
 
 
 void crear(abb *A);
 
 void destruir(abb *A);
 
-unsigned _vacia(abb A);
+unsigned vacia(abb A);
+
+void ler(abb A, tipoelem *E);
+
+abb izq(abb A);
+
+abb der(abb A);
 
 void buscar_nodo(abb A, tipoclave cl, tipoelem *nodo);
 

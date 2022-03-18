@@ -120,6 +120,18 @@ char segCaracter() {
     return c;
 }
 
+// Ignora un caracter, saltándoso na memoria intermedia
+void ignorarCaracter() {
+    // Realízanse diferentes comprobacións en función do bloque activo
+    if (buf.activo == 0) {  // Se é o bloque A:
+        // Compróbase a que elemento do bloque apunta o punteiro inicio
+
+    } else {    // Se é o bloque B:
+        // O proceso é análogo ao bloque A
+
+    }
+}
+
 // Devolución de caracter, retrocedendo na memoria intermedia
 void devolverCaracter() {
     // Realízanse diferentes comprobacións en función do bloque activo
@@ -197,7 +209,7 @@ void aceptarLexema(CompLexico *comp) {
     if (strlen(comp->lexema) > TAM + 1) {
         free(comp->lexema);
         comp->lexema = NULL;
-        lanzarErro(TAM_LEXEMA_EXCEDIDO);
+        lanzarErro(LEXEMA_TAM_EXCEDIDO);
     }
 }
 

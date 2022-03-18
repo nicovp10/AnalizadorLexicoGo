@@ -4,9 +4,14 @@
 #include "analizadorLexico.h"
 
 
-void analizadorSintactico() {
+void analizadorSintactico(char *nomeFicheiro) {
     CompLexico comp;
+
+    iniciarAnalizadorLexico(nomeFicheiro);
+
     while ((comp = segCompLexico()).lexema != NULL) {
-        printf("Comp. léxico: %d\t\tLexema: %s\n", comp.comp_lexico, comp.lexema);
+        printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
     }
+
+    finalizarAnalizadorLexico();
 }

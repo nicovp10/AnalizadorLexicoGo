@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "analizadorSintactico.h"
-#include "sistemaEntrada.h"
 #include "taboaSimbolos.h"
 
 
@@ -13,15 +12,13 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-
-    iniciarSistemaEntrada(argv[1]);
     iniciarTS();
+    imprimirTS();
 
-    analizadorSintactico();
+    analizadorSintactico(argv[1]);
 
+    imprimirTS();
     finalizarTS();
-    finalizarSistemaEntrada();
-
 
     exit(EXIT_SUCCESS);
 }

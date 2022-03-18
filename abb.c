@@ -9,11 +9,6 @@ struct celda {
 };
 
 
-// Compróbase se a árbore é vacía
-unsigned _vacia(abb A) {
-    return A == NULL;
-}
-
 // Extráese a clave dun nodo
 tipoclave _clave_elem(tipoelem *E) {
     return E->lexema;
@@ -33,7 +28,7 @@ int _comparar_clave_elem(tipoclave cl, tipoelem E) {
 tipoelem _suprimir_min(abb *A) {
     abb aux;
     tipoelem ele;
-    if (_vacia((*A)->izq)) { // Se a esquerda está vacía, devólvese o valor do nodo actual
+    if (vacia((*A)->izq)) { // Se a esquerda está vacía, devólvese o valor do nodo actual
         ele = (*A)->info;
         aux = *A;
         *A = (*A)->der;
@@ -60,9 +55,29 @@ void destruir(abb *A) {
     }
 }
 
+// Compróbase se a árbore é vacía
+unsigned vacia(abb A) {
+    return A == NULL;
+}
+
+// Le o elemento dun nodo
+void ler(abb A, tipoelem *E) {
+    *E = A->info;
+}
+
+// Devolve a subárbore esquerda de A
+abb izq(abb A) {
+    return A->izq;
+}
+
+// Devolve a subárbore dereita de A
+abb der(abb A) {
+    return A->der;
+}
+
 // Busca un nodo na árbore, se non o atopa devolve NULL en *nodo
 void buscar_nodo(abb A, tipoclave cl, tipoelem *nodo) {
-    if (_vacia(A)) {
+    if (vacia(A)) {
         return;
     }
     int comp = _comparar_clave_elem(cl, A->info);
@@ -78,7 +93,7 @@ void buscar_nodo(abb A, tipoclave cl, tipoelem *nodo) {
 
 // Inserta un novo nodo na árbore (presuponse que non existe un nodo coa misma clave nesta)
 void insertar(abb *A, tipoelem E) {
-    if (_vacia(*A)) {
+    if (vacia(*A)) {
         *A = (abb) malloc(sizeof(struct celda));
         (*A)->info = E;
         (*A)->izq = NULL;
@@ -97,7 +112,7 @@ void insertar(abb *A, tipoelem E) {
 // Elimina un elemento da árbore
 void suprimir(abb *A, tipoelem E) {
     abb aux;
-    if (_vacia(*A)) {
+    if (vacia(*A)) {
         return;
     }
 
@@ -107,14 +122,14 @@ void suprimir(abb *A, tipoelem E) {
         suprimir(&(*A)->izq, E);
     } else if (comp > 0) { // (E > (*A)->info))
         suprimir(&(*A)->der, E);
-    } else if (_vacia((*A)->izq) && _vacia((*A)->der)) {
+    } else if (vacia((*A)->izq) && vacia((*A)->der)) {
         free(*A);
         *A = NULL;
-    } else if (_vacia((*A)->izq)) { // Se non é vacío á dereita:
+    } else if (vacia((*A)->izq)) { // Se non é vacío á dereita:
         aux = *A;
         *A = (*A)->der;
         free(aux);
-    } else if (_vacia((*A)->der)) { // Se non é vacío á esquerda:
+    } else if (vacia((*A)->der)) { // Se non é vacío á esquerda:
         aux = *A;
         *A = (*A)->izq;
         free(aux);

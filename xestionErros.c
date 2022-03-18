@@ -6,10 +6,13 @@
 void lanzarErro(int codigo) {
     switch (codigo) {
         case FICHEIRO_NON_ATOPADO:
-            printf("Non se atopou o ficheiro de código fonte.\n");
+            printf("\nNon se atopou o ficheiro de código fonte.\n\n");
             break;
-        case TAM_LEXEMA_EXCEDIDO:
-            printf("Tamaño máximo de lexema excedido.\n");
+        case LEXEMA_TAM_EXCEDIDO:
+            printf("\nTamaño máximo de lexema excedido.\n\n");
+            break;
+        case LEXEMA_MAL_FORMADO:
+            printf("\nDetectouse un lexema mal formado.\n\n");
             break;
         default:
             printf("Nunca debería chegar aquí");

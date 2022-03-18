@@ -6,9 +6,11 @@
 
 void iniciarTS();
 
-CompLexico buscar_insertar();
+void buscar_insertar(CompLexico *comp);
 
 void finalizarTS();
+
+void imprimirTS();
 
 
 #endif
