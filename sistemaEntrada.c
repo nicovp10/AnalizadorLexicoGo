@@ -188,8 +188,8 @@ void aceptarLexema(CompLexico *comp) {
 
     buf.inicio = buf.dianteiro;
 
-    // Compróbase se o lexema exede o tamaño máximo
     /*
+     * Compróbase se o lexema exede o tamaño máximo.
      * Este tamaño será o tamaño do lexema nun dos peores casos: o lexema está
      * na última posición nun bloque e no bloque seguinte completo. O tamaño deste
      * lexema será o máximo permitido
