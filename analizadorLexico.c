@@ -30,17 +30,21 @@ void _limparComp() {
 
 CompLexico segCompLexico() {
     char c;
-
+    int flag = 0, flag2 = 0;
     _limparComp();
 
-    while ((c = segCaracter()) != EOF) {
-            if (isalpha(c) || c == '_') {
-                _alfanumerico();
-            } else if (isdigit(c)) {
-                _numerico();
-            } else {
+    while ((c = segCaracter()) != EOF && flag == 0) {
+        if (c == ' ') {
+            aceptarLexema(&comp);
+            flag = 1;
+        }
+        if (isalpha(c) || c == '_') {
+            _alfanumerico();
+        } else if (isdigit(c)) {
+            _numerico();
+        } else {
 
-            }
+        }
     }
 
 
