@@ -9,7 +9,7 @@
 abb TS;
 
 
-// Recorrido inorden da árbore
+// Recorrido inorde da árbore
 void _auxImprimir(abb A) {
     tipoelem E;
     if (!vacia(A)) {

@@ -97,38 +97,53 @@ char segCaracter() {
                 c = segCaracter();      // Chamada recursiva á función para ler un caracter xa que nesta chamada leuse o EOF de final de bloque
             }
                 // Se se chegou ao fin de ficheiro, devólvese EOF
-            else buf.dianteiro++; // Móvese de posición o punteiro
+            else {
+                buf.dianteiro++; // Móvese de posición o punteiro
+            }
         }
             // Se o caracter lido non é EOF, soamente se move de posición o punteiro
-        else buf.dianteiro++;
+        else {
+            buf.dianteiro++;
+        }
     } else { // Se é o bloque B:
         // O proceso é análogo ao do bloque A
         if ((c = buf.B[buf.dianteiro - TAM]) == EOF) {  // Réstase TAM para adaptar o valor ao bloque B
             if (!feof(f_codigo_fonte)) {
-                if (buf.cargar)
+                if (buf.cargar) {
                     _cargarSegBloque();
-                else
+                } else {
                     buf.cargar = 1;
+                }
                 _cambiarBloqueActivo();
                 c = segCaracter();
-            } else
+            } else {
                 buf.dianteiro++;
-        } else
+            }
+        } else {
             buf.dianteiro++;
+        }
     }
 
     return c;
 }
 
-// Ignora un caracter, saltándoso na memoria intermedia
+// Ignora un caracter, saltando na memoria intermedia
 void ignorarCaracter() {
     // Realízanse diferentes comprobacións en función do bloque activo
     if (buf.activo == 0) {  // Se é o bloque A:
         // Compróbase a que elemento do bloque apunta o punteiro inicio
-
+        if (buf.inicio == TAM - 1) {
+            _cambiarBloqueActivo();
+        }
+        buf.inicio++;
     } else {    // Se é o bloque B:
         // O proceso é análogo ao bloque A
-
+        if (buf.inicio == 2 * TAM - 1) {
+            buf.activo = 0;
+            buf.inicio = 0;
+        } else {
+            buf.inicio++;
+        }
     }
 }
 
@@ -141,16 +156,18 @@ void devolverCaracter() {
             _cambiarBloqueActivo();
             buf.cargar = 0; // Indícase que non se cargue cando se volve ao bloque do que se acaba de retroceder
             buf.dianteiro = 2 * TAM - 1;    // Modifícase o punteiro dianteiro para adaptarse ao bloque B
-        } else
+        } else {
             buf.dianteiro--; // Se non apunta ao primeiro elemento, retrocédese unha posición soamente
+        }
     } else {    // Se é o bloque B:
         // O proceso é análogo ao bloque A
         if (buf.dianteiro == TAM) {
             _cambiarBloqueActivo();
             buf.cargar = 0;
             buf.dianteiro = TAM - 1;
-        } else
+        } else {
             buf.dianteiro--;
+        }
     }
 }
 
@@ -180,10 +197,11 @@ void aceptarLexema(CompLexico *comp) {
         comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
 
         // Compróbase o bloque no que está para a selección
-        if (buf.activo == 0)
+        if (buf.activo == 0) {
             strncpy(comp->lexema, buf.A + buf.inicio, buf.dianteiro - buf.inicio);
-        else
+        } else {
             strncpy(comp->lexema, buf.B + buf.inicio - TAM, buf.dianteiro - buf.inicio);
+        }
     } else {                                // Se os dous punteiros están no mesmo bloque e inicio está despois que dianteiro:
         comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
 
@@ -198,7 +216,7 @@ void aceptarLexema(CompLexico *comp) {
         }
     }
 
-    buf.inicio = buf.dianteiro;
+    saltarLexema();
 
     /*
      * Compróbase se o lexema exede o tamaño máximo.
@@ -211,6 +229,11 @@ void aceptarLexema(CompLexico *comp) {
         comp->lexema = NULL;
         lanzarErro(LEXEMA_TAM_EXCEDIDO);
     }
+}
+
+// Salta o lexema que está léndose actualmente, reubicando os punteiros do búffer
+void saltarLexema() {
+    buf.inicio = buf.dianteiro;
 }
 
 // Finalización do sistema de entrada

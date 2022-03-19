@@ -15,6 +15,8 @@ void devolverCaracter();
 
 void aceptarLexema(CompLexico *comp);
 
+void saltarLexema();
+
 void finalizarSistemaEntrada();
 
 

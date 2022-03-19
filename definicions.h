@@ -9,86 +9,87 @@ typedef struct {
 
 
 #define ID 300
+#define BLANK_ID 301
 
-#define BREAK 301
-#define CASE 302
-#define CHAN 303
-#define CONST 304
-#define CONTINUE 305
-#define DEFAULT 306
-#define DEFER 307
-#define ELSE 308
-#define FALLTHROUGH 309
-#define FOR 310
-#define FUNC 311
-#define GO 312
-#define GOTO 313
-#define IF 314
-#define IMPORT 315
-#define INTERFACE 316
-#define MAP 317
-#define PACKAGE 318
-#define RANGE 319
-#define RETURN 320
-#define SELECT 321
-#define STRUCT 322
-#define SWITCH 323
-#define TYPE 324
-#define VAR 325
+#define BREAK 302
+#define CASE 303
+#define CHAN 304
+#define CONST 305
+#define CONTINUE 306
+#define DEFAULT 307
+#define DEFER 308
+#define ELSE 309
+#define FALLTHROUGH 310
+#define FOR 311
+#define FUNC 312
+#define GO 313
+#define GOTO 314
+#define IF 315
+#define IMPORT 316
+#define INTERFACE 317
+#define MAP 318
+#define PACKAGE 319
+#define RANGE 320
+#define RETURN 321
+#define SELECT 322
+#define STRUCT 323
+#define SWITCH 324
+#define TYPE 325
+#define VAR 326
 
-#define SUMA 326                // +
-#define RESTA 327               // -
-#define MULT 328                // *
-#define DIV 329                 // /
-#define MOD 330                 // %
-#define AMPER 331               // &
-#define VERT 332                // |
-#define EXP 333                 // ^
-#define ANGULARESIZQ 334        // <<
-#define ANGULARESDER 335        // >>
-#define AMPEREXP 336            // &^
-#define SUMAIGUAL 337           // +=
-#define RESTAIGUAL 338          // -=
-#define MULTIGUAL 339           // *=
-#define DIVIGUAL 340            // /=
-#define MODIGUAL 341            // %=
-#define AMPERIGUAL 342          // &=
-#define VERTIGUAL 343           // |=
-#define EXPIGUAL 344            // ^=
-#define ANGULARESIZQIGUAL 345   // <<=
-#define ANGULARESDERIGUAL 346   // >>=
-#define AMPEREXPIGUAL 347       // &^=
-#define AMPERDOBLE 348          // &&
-#define VERTDOBLE 349           // ||
-#define FLECHAIZQ 350           // <-
-#define SUMADOBLE 351           // ++
-#define RESTADOBLE 352          // --
-#define IGUALDOBLE 353          // ==
-#define MENORQUE 354            // <
-#define MAYORQUE 355            // >
-#define IGUAL 356               // =
-#define EXCLAMACION 357         // !
-#define EXCLAMACIONIGUAL 358    // !=
-#define MENORIGUAL 359          // <=
-#define MAYORIGUAL 360          // >=
-#define DOSPUNTOSIGUAL 361      // :=
-#define PUNTOTRIPLE 362         // ...
-#define PARENTESISIZQ 363       // (
-#define CORCHETEIZQ 364         // [
-#define CHAVEIQZ 365            // {
-#define COMA 366                // ,
-#define PUNTO 367               // .
-#define PARENTESISDER 368       // )
-#define CORCHETEDER 369         // ]
-#define CHAVEDER 370            // }
-#define PUNTOECOMA 371          // ;
-#define DOUSPUNTOS 372          // :
+#define SUMA 327                // +
+#define RESTA 328               // -
+#define MULT 329                // *
+#define DIV 330                 // /
+#define MOD 331                 // %
+#define AMPER 332               // &
+#define VERT 333                // |
+#define EXP 334                 // ^
+#define ANGULARESIZQ 335        // <<
+#define ANGULARESDER 336        // >>
+#define AMPEREXP 337            // &^
+#define SUMAIGUAL 338           // +=
+#define RESTAIGUAL 339          // -=
+#define MULTIGUAL 340           // *=
+#define DIVIGUAL 341            // /=
+#define MODIGUAL 342            // %=
+#define AMPERIGUAL 343          // &=
+#define VERTIGUAL 344           // |=
+#define EXPIGUAL 345            // ^=
+#define ANGULARESIZQIGUAL 346   // <<=
+#define ANGULARESDERIGUAL 347   // >>=
+#define AMPEREXPIGUAL 348       // &^=
+#define AMPERDOBLE 349          // &&
+#define VERTDOBLE 350           // ||
+#define FLECHAIZQ 351           // <-
+#define SUMADOBLE 352           // ++
+#define RESTADOBLE 353          // --
+#define IGUALDOBLE 354          // ==
+#define MENORQUE 355            // <
+#define MAYORQUE 356            // >
+#define IGUAL 357               // =
+#define EXCLAMACION 358         // !
+#define EXCLAMACIONIGUAL 359    // !=
+#define MENORIGUAL 360          // <=
+#define MAYORIGUAL 361          // >=
+#define DOSPUNTOSIGUAL 362      // :=
+#define PUNTOTRIPLE 363         // ...
+#define PARENTESISIZQ 364       // (
+#define CORCHETEIZQ 365         // [
+#define CHAVEIQZ 366            // {
+#define COMA 367                // ,
+#define PUNTO 368               // .
+#define PARENTESISDER 369       // )
+#define CORCHETEDER 370         // ]
+#define CHAVEDER 371            // }
+#define PUNTOECOMA 372          // ;
+#define DOUSPUNTOS 373          // :
 
-#define INT 373
-#define FLOAT 374
-#define IMAGINARY 375
-#define RUNE 376
-#define STRING 377
+#define INT 374
+#define FLOAT 375
+#define IMAGINARY 376
+#define RUNE 377
+#define STRING 378
 
 
 #endif

@@ -9,8 +9,10 @@ void analizadorSintactico(char *nomeFicheiro) {
 
     iniciarAnalizadorLexico(nomeFicheiro);
 
-    while ((comp = segCompLexico()).lexema != NULL) {
-        printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
+    while ((comp = segCompLexico()).comp_lexico != EOF) {
+        if (comp.lexema != NULL) {
+            printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
+        }
     }
 
     finalizarAnalizadorLexico();
