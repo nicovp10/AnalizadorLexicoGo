@@ -10,11 +10,30 @@
 
 CompLexico comp = {0, NULL};
 int aceptado, erro;
+char c = ' ';
 
+
+/* Funcion auxiliar que le un numero concreto de dixitos hexadecimais
+ *      return 0: exito
+ *      return 1: erro
+ */
+int _lerDixitosHex(int n) {
+    for (int i = 0; i < n; i++) {
+        c = segCaracter();
+
+        if (!isdigit(c) &&
+            (((int) c < 65) || ((int) c > 70)) &&
+            (((int) c < 97) || ((int) c > 102))) {
+            // Se non é un díxito nin A-F nin a-f:
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 void _alfanumerico(char char_previo) {
     int cont_chars = 0;
-    char c;
 
     do {
         c = segCaracter();
@@ -39,16 +58,97 @@ void _numerico() {
 }
 
 void _strings(char char_previo) {
-    if (char_previo == '"') {
+    int estado = 0, escapado;
 
-    } else {
+    erro = 0;
+    if (char_previo == '"') {   // Se é un string interpretado:
+        do {
+            escapado = 0;
+            c = segCaracter();
+            switch (estado) {
+                case 0: // Se é un caracter unicode:
+                    if (c == '\\') {
+                        estado = 1;
+                    }
+                    break;
+                case 1: // Se se detectou una \:
+                    switch (c) {
+                        case 'x':   // Se é un byte hexadecimal:
+                            // Lense os díxitos hexadecimais correspondentes
+                            if (_lerDixitosHex(2)) {
+                                lanzarErro(BYTE_HEX_POUCOS_DIXITOS);
+                                erro = 1;
+                                saltarLexema();
+                            }
+                            break;
+                        case 'u':   // Se é un unicode pequeno:
+                            if (_lerDixitosHex(4)) {
+                                lanzarErro(UNICODE_PEQUENO_INVALIDO);
+                                erro = 1;
+                                saltarLexema();
+                            }
+                            break;
+                        case 'U':   // Se é un unicode grande:
+                            if (_lerDixitosHex(8)) {
+                                lanzarErro(UNICODE_GRANDE_INVALIDO);
+                                erro = 1;
+                                saltarLexema();
+                            }
+                            break;
+                        default:    // Se é un byte octal ou caracter escapado:
+                            if (((int) c >= 48) && ((int) c <= 55)) {   // Se é un valor octal
+                                for (int i = 0; i < 2; i++) {   // Lense os dous valores octais que faltan
+                                    c = segCaracter();
+                                    if ((int) c < 48 || ((int) c > 55)) {   // Se non son valores octais:
+                                        lanzarErro(BYTE_OCT_POUCOS_DIXITOS);
+                                        erro = 1;
+                                        saltarLexema();
+                                        break;
+                                    }
+                                }
+                            } else if (c != 'a' && c != 'b' && c != 'f' && c != 'n' &&
+                                       c != 'r' && c != 't' && c != 'v' && c != '\\' &&
+                                       c != '\'' && c != '"') {
+                                // Compróbase se non é un caracter escapado
+                                lanzarErro(CARACTER_ESCAPADO_SECUENCIA_DESCONOCIDA);
+                                erro = 1;
+                                saltarLexema();
+                            } else {
+                                escapado = 1;
+                            }
+                            break;
+                    }
+                    estado = 0;
+                    break;
+            }
+        } while ((c != '"' || escapado) && c != EOF && !erro);
 
+        if (c == EOF) {
+            lanzarErro(STRING_INTERPRETADO_NON_PECHADO);
+            erro = 1;
+        }
+    } else {                    // Se é un string crudo:
+        do {
+            c = segCaracter();
+        } while (c != '`' && c != EOF);
+
+        if (c == EOF) {
+            lanzarErro(STRING_CRUDO_NON_PECHADO);
+            erro = 1;
+            saltarLexema();
+        }
+    }
+
+    if (!erro) {
+        aceptarLexema(&comp);
+        comp.comp_lexico = STRING;
+        aceptado = 1;
+        saltarLexema();
     }
 }
 
 void _comentarios() {
     int estado;
-    char c;
 
     c = segCaracter();
     if (c == '/') {
@@ -56,36 +156,47 @@ void _comentarios() {
     } else if (c == '*') {
         estado = 1;
     } else {
-        lanzarErro(LEXEMA_MAL_FORMADO);
-        erro = 1;
+        estado = 3;
     }
 
     while (!aceptado && !erro) {
         switch (estado) {
-            case 0: // Se é un comentario dunha liña
+            case 0: // Se é un comentario dunha liña:
                 do {
                     c = segCaracter();
                 } while (c != '\n' && c != EOF);
+                saltarLexema();
                 aceptado = 1;
                 break;
-            case 1: // Se é un comentario múltiples
+            case 1: // Se é un comentario múltiples:
                 do {
                     c = segCaracter();
-                } while (c != '*');
-                estado = 2;
+                } while (c != '*' && c != EOF);
+                if (c == EOF) {
+                    lanzarErro(COMENTARIO_MULTILINEA_NON_PECHADO);
+                    saltarLexema();
+                    erro = 1;
+                } else {
+                    estado = 2;
+                }
                 break;
-            case 2: // Se é un comentario múltiple e se leu un asterisco
+            case 2: // Se é un comentario múltiple e se leu un asterisco:
                 c = segCaracter();
                 if (c == '/') {
+                    saltarLexema();
                     aceptado = 1;
                 } else {
                     estado = 1;
                 }
                 break;
+            case 3: // Se despois da primeira / vén algo distinto de / ou *:
+                devolverCaracter();
+                aceptarLexema(&comp);
+                comp.comp_lexico = DIV;
+                aceptado = 1;
+                break;
         }
     }
-
-    saltarLexema();
 }
 
 
@@ -104,44 +215,33 @@ void iniciarAnalizadorLexico(char *nomeFicheiro) {
 }
 
 CompLexico segCompLexico() {
-    char c = ' ';
     int estado = 0;
     _limparComp();
 
     aceptado = 0;
     erro = 0;
 
-    // TODO dá fallo ás veces cando se excede o tamaño dun lexema
-    while (c != EOF && !aceptado && !erro)
+    while (c != EOF && !aceptado && !erro) {
         switch (estado) {
             case 0:
                 // Estado inicial do analizador léxico
                 c = segCaracter();
                 if (isalpha(c) || c == '_') {
-                    _alfanumerico(c);   // Se comeza por unha letra ou _, AF de cadeas alfanuméricas
+                    _alfanumerico(c);   // Se comeza por unha letra ou _, AF de cadeas alfanuméricas:
                 } else if (c == '"' || c == '`') {
-                    _strings(c);        // Se comeza por " ou `, AF de strings
+                    _strings(c);        // Se comeza por " ou `, AF de strings:
                 } else if (c == '/') {
-                    _comentarios();                 // Se comeza por /, AF de comentarios
+                    _comentarios();                 // Se comeza por /, AF de comentarios (tamén acepta DIV):
+                } else if (c == EOF) {
+                    comp.lexema = NULL;
+                    comp.comp_lexico = EOF;
                 } else {
                     ignorarCaracter();
                 }
                 break;
         }
-
-    /*
-    if (c == ' ') {
-        aceptarLexema(&comp);
-        aceptado = 1;
     }
-    if (isalpha(c) || c == '_') {
-        _alfanumerico();
-    } else if (isdigit(c)) {
-        _numerico();
-    } else {
 
-    }
-     */
 
     return comp;
 }

@@ -50,6 +50,7 @@ void destruir(abb *A) {
     if (*A != NULL) {
         destruir(&(*A)->izq);
         destruir(&(*A)->der);
+        free((*A)->info.lexema);
         free(*A);
         *A = NULL;
     }
@@ -95,7 +96,9 @@ void buscar_nodo(abb A, tipoclave cl, tipoelem *nodo) {
 void insertar(abb *A, tipoelem E) {
     if (vacia(*A)) {
         *A = (abb) malloc(sizeof(struct celda));
-        (*A)->info = E;
+        (*A)->info.comp_lexico = E.comp_lexico;
+        (*A)->info.lexema = malloc(strlen(E.lexema) * sizeof(char));
+        strncpy((*A)->info.lexema, E.lexema, strlen(E.lexema) * sizeof(char));
         (*A)->izq = NULL;
         (*A)->der = NULL;
         return;

@@ -67,7 +67,6 @@ void buscar_insertar(CompLexico *comp) {
     } else {
         // Se está na TS, devólvese o atopado
         comp->comp_lexico = comp_busqueda.comp_lexico;
-        strncpy(comp->lexema, comp_busqueda.lexema, strlen(comp_busqueda.lexema));
     }
 }
 

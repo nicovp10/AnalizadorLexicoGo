@@ -5,7 +5,7 @@
 #include "sistemaEntrada.h"
 #include "xestionErros.h"
 
-#define TAM 32
+#define TAM 64
 
 
 typedef struct {
@@ -28,7 +28,7 @@ FILE *f_codigo_fonte;
 
 
 // Inicialización do buffer cos valores necesarios
-void _inicializarBuffer() {
+void _iniciarBuffer() {
     buf.inicio = 0;
     buf.dianteiro = 0;
     buf.activo = 1;
@@ -75,9 +75,10 @@ void iniciarSistemaEntrada(char *nomeFicheiro) {
         lanzarErro(FICHEIRO_NON_ATOPADO);
         exit(EXIT_FAILURE);
     }
-    _inicializarBuffer();
+
+    _iniciarBuffer();
     _cargarSegBloque();
-    buf.activo = 0;
+    _cambiarBloqueActivo();
 }
 
 // Obtención do seguinte caracter da memoria intermedia
@@ -129,21 +130,34 @@ char segCaracter() {
 
 // Ignora un caracter, saltando na memoria intermedia
 void ignorarCaracter() {
+    int modificar_dianteiro = 0;
+
+    // Se só se lera un caracter do lexema, tamén se modifica dianteiro para que non se quede atrás
+    if (buf.dianteiro - buf.inicio == 1) {
+        modificar_dianteiro = 1;
+    }
+
     // Realízanse diferentes comprobacións en función do bloque activo
     if (buf.activo == 0) {  // Se é o bloque A:
         // Compróbase a que elemento do bloque apunta o punteiro inicio
-        if (buf.inicio == TAM - 1) {
+        if (buf.inicio == TAM - 1) {    // Se apuntaba ao último, cámbiase de bloque e cárgase
+            _cargarSegBloque();
             _cambiarBloqueActivo();
         }
         buf.inicio++;
     } else {    // Se é o bloque B:
         // O proceso é análogo ao bloque A
         if (buf.inicio == 2 * TAM - 1) {
+            _cargarSegBloque();
             buf.activo = 0;
             buf.inicio = 0;
         } else {
             buf.inicio++;
         }
+    }
+
+    if (modificar_dianteiro) {
+        buf.dianteiro = buf.inicio;
     }
 }
 
@@ -180,17 +194,17 @@ void aceptarLexema(CompLexico *comp) {
         comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
 
         // Cópiase a parte do bloque A no campo do lexema
-        strncpy(comp->lexema, buf.A + buf.inicio, TAM - buf.inicio);
+        strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
 
         // Concaténase a parte do bloque B no campo do lexema
-        strncat(comp->lexema, buf.B, buf.dianteiro - TAM);
+        strncat(comp->lexema, buf.B, (buf.dianteiro - TAM) * sizeof(char));
     } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
         // Resérvase a memoria restando TAM menos inicio máis dianteiro para obter o número de chars a reservar
         // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
         comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
 
-        strncpy(comp->lexema, buf.B + buf.inicio - TAM, 2 * TAM - buf.inicio);
-        strncat(comp->lexema, buf.A, buf.dianteiro);
+        strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
+        strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
     }
         // As dúas últimas comprobacións son se os punteiros están no mesmo bloque
     else if (buf.inicio < buf.dianteiro) {  // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
@@ -198,21 +212,21 @@ void aceptarLexema(CompLexico *comp) {
 
         // Compróbase o bloque no que está para a selección
         if (buf.activo == 0) {
-            strncpy(comp->lexema, buf.A + buf.inicio, buf.dianteiro - buf.inicio);
+            strncpy(comp->lexema, buf.A + buf.inicio, (buf.dianteiro - buf.inicio) * sizeof(char));
         } else {
-            strncpy(comp->lexema, buf.B + buf.inicio - TAM, buf.dianteiro - buf.inicio);
+            strncpy(comp->lexema, buf.B + buf.inicio - TAM, (buf.dianteiro - buf.inicio) * sizeof(char));
         }
     } else {                                // Se os dous punteiros están no mesmo bloque e inicio está despois que dianteiro:
         comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
 
         if (buf.activo == 0) {
-            strncpy(comp->lexema, buf.A + buf.inicio, TAM - buf.inicio);
-            strncat(comp->lexema, buf.B, TAM);
-            strncat(comp->lexema, buf.A, buf.dianteiro);
+            strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
+            strncat(comp->lexema, buf.B, TAM * sizeof(char));
+            strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
         } else {
-            strncpy(comp->lexema, buf.B + buf.inicio - TAM, 2 * TAM - buf.inicio);
-            strncat(comp->lexema, buf.A, TAM);
-            strncat(comp->lexema, buf.B, buf.dianteiro - TAM);
+            strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
+            strncat(comp->lexema, buf.A, TAM * sizeof(char));
+            strncat(comp->lexema, buf.B, buf.dianteiro - TAM * sizeof(char));
         }
     }
 
