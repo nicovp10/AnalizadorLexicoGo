@@ -22,8 +22,8 @@ int _lerDixitosHex(int n) {
         c = segCaracter();
 
         if (!isdigit(c) &&
-            (((int) c < 65) || ((int) c > 70)) &&
-            (((int) c < 97) || ((int) c > 102))) {
+            ((c < 65) || (c > 70)) &&
+            ((c < 97) || (c > 102))) {
             // Se non é un díxito nin A-F nin a-f:
             return 1;
         }
@@ -55,7 +55,91 @@ void _alfanumerico(char char_inicial) {
 }
 
 void _numerico() {
-    c = segCaracter();
+    int estado = 0;
+
+    if (isdigit(c) && c != '0') {
+        estado = 0;
+    } else if (c == '0') {
+        estado = 1;
+    } else if (c == '.') {
+        estado = 2;
+    }
+
+    do {
+        c = segCaracter();
+        switch (estado) {
+            case 0: // decimal_lit ou decimal_float_lit
+                comp.comp_lexico = INT;
+                switch (c) {
+                    case '_':   // Se se le unha _, tense que ler un número posteriormente
+                        estado = 3;
+                        break;
+                    case '.':   // Se se le un ., tense que ler un número posteriormente
+                        estado = 2; // Non obstante pode ser PUNTOTRIPLE ou PUNTO
+                        break;
+                    case 'e':
+                    case 'E':
+                        estado = 5;
+                        break;
+                }
+                break;
+            case 1:
+                if (isdigit(c)) {
+                    estado = 0;
+                } else {
+                    switch (c) {
+                        case 'b':
+                        case 'B':   // binary_lit
+                            comp.comp_lexico = INT;
+                            break;
+                        case 'o':   // octal_lit
+                        case 'O':
+                            comp.comp_lexico = INT;
+                            break;
+                        case 'x':   // hex_lit ou hex_float_lit
+                        case 'X':
+                            break;
+                    }
+                }
+                break;
+            case 2: // Último caracter lido: .
+                comp.comp_lexico = FLOAT;
+                if (isdigit(c)) {
+                    estado = 1;
+                } else if (c == '.') {
+                    estado = 4;
+                } else if (c == 'e' || c == 'E') {
+                    estado = 5;
+                } else {
+                    devolverCaracter();
+                    aceptarLexema(&comp);
+                    comp.comp_lexico = PUNTO;
+                    aceptado = 1;
+                }
+                break;
+            case 3: // Último caracter lido: _
+                if (isdigit(c)) {
+                    estado = 0;
+                } else {
+                    lanzarErro(INT_MAL_FORMADO);
+                    erro = 1;
+                }
+                break;
+            case 4: // Últimos caracteres lidos: ..
+                if (c == '.') {
+                    aceptarLexema(&comp);
+                    comp.comp_lexico = PUNTOTRIPLE;
+                    aceptado = 1;
+                } else {
+                    lanzarErro(LEXEMA_DESCONOCIDO);
+                    saltarLexema();
+                    erro = 1;
+                }
+                break;
+            case 5: // Último caracter lido: e | E
+                break;
+        }
+    } while (c != EOF && !aceptado && !erro);
 }
 
 void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
@@ -70,7 +154,7 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
                 if (c == '\\') {
                     estado = 1;
                 }
-                cont_chars++; // Indica o número de caracteres lidos
+                cont_chars++; // Indica o número de caracteres lidos (menos 1)
                 break;
             case 1: // Se se detectou una \:
                 switch (c) {
@@ -94,10 +178,10 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
                         }
                         break;
                     default:    // Se é un byte octal ou caracter escapado:
-                        if (((int) c >= 48) && ((int) c <= 55)) {   // Se é un valor octal
+                        if ((c >= 48) && (c <= 55)) {   // Se é un valor octal
                             for (int i = 0; i < 2; i++) {   // Lense os dous valores octais que faltan
                                 c = segCaracter();
-                                if ((int) c < 48 || ((int) c > 55)) {   // Se non son valores octais:
+                                if ((c < 48) || (c > 55)) {   // Se non son valores octais:
                                     lanzarErro(BYTE_OCT_POUCOS_DIXITOS);
                                     erro = 1;
                                     break;
@@ -171,10 +255,10 @@ void _strings() {
                             }
                             break;
                         default:    // Se é un byte octal ou caracter escapado:
-                            if (((int) c >= 48) && ((int) c <= 55)) {   // Se é un valor octal
+                            if ((c >= 48) && (c <= 55)) {   // Se é un valor octal
                                 for (int i = 0; i < 2; i++) {   // Lense os dous valores octais que faltan
                                     c = segCaracter();
-                                    if ((int) c < 48 || ((int) c > 55)) {   // Se non son valores octais:
+                                    if (c < 48 || (c > 55)) {   // Se non son valores octais:
                                         lanzarErro(BYTE_OCT_POUCOS_DIXITOS);
                                         erro = 1;
                                         break;
@@ -299,20 +383,20 @@ CompLexico segCompLexico() {
             case 0: // Estado inicial do analizador léxico
                 c = segCaracter();
                 if (isalpha(c) || c == '_') {       // Se comeza por unha letra ou _, AF de cadeas alfanuméricas
-                    _alfanumerico(c);     //      Este AF acepta ID, BLANK_ID e keywords
-                } else if (isdigit(c)) {            // Se comeza por un número, AF de cadeas numéricas
-                    _numerico();                    //      Este AF acepta INT, FLOAT e IMAGINARY
+                    _alfanumerico(c);     //      Acepta ID, BLANK_ID e keywords
+                } else if (isdigit(c) || c == '.') {// Se comeza por un número ou ., AF de cadeas numéricas
+                    _numerico();                    //      Acepta INT, FLOAT, IMAGINARY, PUNTOTRIPLE e PUNTO
                 } else if (c == '\'') {             // Se comeza por ', AF de runas
-                    _rune();                        //      Este AF acepta RUNE
+                    _rune();                        //      Acepta RUNE
                 } else if (c == '"' || c == '`') {  // Se comeza por " ou `, AF de strings
-                    _strings();                     //      Este AF acepta STRING
+                    _strings();                     //      Acepta STRING
                 } else if (c == '/') {              // Se comeza por /, AF de comentarios
-                    _comentarios();                 //      Este AF sáltase os comentarios e acepta DIV
+                    _comentarios();                 //      Acepta DIV e sáltase os comentarios
                 } else if (c == EOF) {              // Se é EOF, indícase no compoñente léxico
                     comp.lexema = NULL;
                     comp.comp_lexico = EOF;
                 } else {                            // Se non comeza por ningún dos anteriores, ignórase o caracter
-                    ignorarCaracter();              //      Este else está pensado para os \t, \n e espacios do código
+                    ignorarCaracter();              //      Está pensado para os \t, \n e espacios do código
                 }
                 break;
         }

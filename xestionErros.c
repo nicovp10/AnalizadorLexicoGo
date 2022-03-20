@@ -8,6 +8,9 @@ void lanzarErro(int codigo) {
         case FICHEIRO_NON_ATOPADO:
             printf("\nERRO: non se atopou o ficheiro de código fonte.\n\n");
             break;
+        case LEXEMA_DESCONOCIDO:
+            printf("\nERRO: lexema descoñecido.\n\n");
+            break;
         case LEXEMA_TAM_EXCEDIDO:
             printf("\nERRO: tamaño máximo de lexema excedido.\n\n");
             break;
@@ -34,6 +37,9 @@ void lanzarErro(int codigo) {
             break;
         case CARACTER_ESCAPADO_SECUENCIA_DESCONOCIDA:
             printf("\nERRO: secuencia de caracter escapado descoñecida.\n\n");
+            break;
+        case INT_MAL_FORMADO:
+            printf("\nERRO: enteiro mal formado, esperábase un número tras a _.\n\n");
             break;
         case RUNA_NON_PECHADA:
             printf("\nERRO: runa non pechada.\n\n");
