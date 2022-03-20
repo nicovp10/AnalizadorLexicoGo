@@ -75,7 +75,7 @@ void finalizarTS() {
 }
 
 void imprimirTS() {
-    printf("\n----- TÁBOA DE SÍMBOLOS -----\n");
+    printf("\n\n----- TÁBOA DE SÍMBOLOS -----\n");
     _auxImprimir(TS);
-    printf("-----------------------------\n\n");
+    printf("-----------------------------\n\n\n");
 }

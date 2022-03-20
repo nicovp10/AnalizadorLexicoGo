@@ -35,5 +35,11 @@ void lanzarErro(int codigo) {
         case CARACTER_ESCAPADO_SECUENCIA_DESCONOCIDA:
             printf("\nERRO: secuencia de caracter escapado descoñecida.\n\n");
             break;
+        case RUNA_NON_PECHADA:
+            printf("\nERRO: runa non pechada.\n\n");
+            break;
+        case RUNA_MOITOS_CARACTERES:
+            printf("\nERRO: runa con moitos caracteres.\n\n");
+            break;
     }
 }
