@@ -205,9 +205,7 @@ void aceptarLexema(CompLexico *comp) {
 
         strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
         strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
-    }
-        // As dúas últimas comprobacións son se os punteiros están no mesmo bloque
-    else if (buf.inicio < buf.dianteiro) {  // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
+    } else {                                                // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
         comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
 
         // Compróbase o bloque no que está para a selección
@@ -215,18 +213,6 @@ void aceptarLexema(CompLexico *comp) {
             strncpy(comp->lexema, buf.A + buf.inicio, (buf.dianteiro - buf.inicio) * sizeof(char));
         } else {
             strncpy(comp->lexema, buf.B + buf.inicio - TAM, (buf.dianteiro - buf.inicio) * sizeof(char));
-        }
-    } else {                                // Se os dous punteiros están no mesmo bloque e inicio está despois que dianteiro:
-        comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
-
-        if (buf.activo == 0) {
-            strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
-            strncat(comp->lexema, buf.B, TAM * sizeof(char));
-            strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
-        } else {
-            strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
-            strncat(comp->lexema, buf.A, TAM * sizeof(char));
-            strncat(comp->lexema, buf.B, buf.dianteiro - TAM * sizeof(char));
         }
     }
 
