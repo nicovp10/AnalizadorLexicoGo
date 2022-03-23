@@ -17,11 +17,8 @@ void lanzarErro(int codigo) {
         case COMENTARIO_MULTILINEA_NON_PECHADO:
             printf("\nERRO: comentario multiliña non pechado.\n\n");
             break;
-        case STRING_CRUDO_NON_PECHADO:
-            printf("\nERRO: string crudo non pechado.\n\n");
-            break;
-        case STRING_INTERPRETADO_NON_PECHADO:
-            printf("\nERRO: string interpretado non pechado.\n\n");
+        case STRING_NON_PECHADO:
+            printf("\nERRO: string non pechado.\n\n");
             break;
         case BYTE_OCT_POUCOS_DIXITOS:
             printf("\nERRO: byte octal con poucos díxitos.\n\n");

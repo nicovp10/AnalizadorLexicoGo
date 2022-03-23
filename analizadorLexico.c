@@ -69,7 +69,6 @@ void _numerico() {
         c = segCaracter();
         switch (estado) {
             case 0: // decimal_lit ou decimal_float_lit
-                comp.comp_lexico = INT;
                 switch (c) {
                     case '_':   // Se se le unha _, tense que ler un número posteriormente
                         estado = 3;
@@ -79,7 +78,13 @@ void _numerico() {
                         break;
                     case 'e':
                     case 'E':
-                        estado = 5;
+                        estado = 16;
+                        break;
+                    default:
+                        devolverCaracter();
+                        aceptarLexema(&comp);
+                        comp.comp_lexico = INT;
+                        aceptado = 1;
                         break;
                 }
                 break;
@@ -89,23 +94,29 @@ void _numerico() {
                 } else {
                     switch (c) {
                         case 'b':
-                        case 'B':   // binary_lit
-                            comp.comp_lexico = INT;
+                        case 'B':
+                            estado = 5;
                             break;
-                        case 'o':   // octal_lit
+                        case 'o':
                         case 'O':
-                            comp.comp_lexico = INT;
+                            estado = 8;
                             break;
                         case 'x':   // hex_lit ou hex_float_lit
                         case 'X':
+                            estado = 11;
+                            break;
+                        default:
+                            devolverCaracter();
+                            aceptarLexema(&comp);
+                            comp.comp_lexico = INT;
+                            aceptado = 1;
                             break;
                     }
                 }
                 break;
             case 2: // Último caracter lido: .
-                comp.comp_lexico = FLOAT;
                 if (isdigit(c)) {
-                    estado = 1;
+                    estado = 0;
                 } else if (c == '.') {
                     estado = 4;
                 } else if (c == 'e' || c == 'E') {
@@ -121,8 +132,10 @@ void _numerico() {
                 if (isdigit(c)) {
                     estado = 0;
                 } else {
-                    lanzarErro(INT_MAL_FORMADO);
-                    erro = 1;
+                    devolverCaracter();
+                    aceptarLexema(&comp);
+                    comp.comp_lexico = INT;
+                    aceptado = 1;
                 }
                 break;
             case 4: // Últimos caracteres lidos: ..
@@ -136,10 +149,115 @@ void _numerico() {
                     erro = 1;
                 }
                 break;
-            case 5: // Último caracter lido: e | E
+            case 5: // binary_lit: estado 1
+                if (c == '_') {
+                    estado = 6;
+                } else {
+                    estado = 7;
+                }
+                break;
+            case 6: // binary_lit: estado 3
+                // Se despois da _ do binary_lit non vén un díxito binario, está mal formado
+                if (c != 0 && c != 1) {
+                    lanzarErro(INT_MAL_FORMADO);
+                    saltarLexema();
+                    erro = 1;
+                } else {
+                    estado = 7;
+                }
+                break;
+            case 7: // binary_lit: estado 3
+                if (c != 0 && c != 1) {
+                    // Acéptase cando o que continua non é un díxito binario
+                    devolverCaracter();
+                    aceptarLexema(&comp);
+                    comp.comp_lexico = INT;
+                    aceptado = 1;
+                }
+                break;
+            case 8: // octal_lit: estado 1
+                if (c == '_') {
+                    estado = 9;
+                } else {
+                    estado = 10;
+                }
+                break;
+            case 9: // octal_lit: estado 2
+                // Se despois da _ do octal_lit non vén un díxito octal, está mal formado
+                if ((c < 48) || (c > 55)) {
+                    lanzarErro(INT_MAL_FORMADO);
+                    saltarLexema();
+                    erro = 1;
+                } else {
+                    estado = 10;
+                }
+                break;
+            case 10: // octal_lit: estado 3
+                if ((c < 48) || (c > 55)) {
+                    // Acéptase cando o que continua non é un díxito octal
+                    devolverCaracter();
+                    aceptarLexema(&comp);
+                    comp.comp_lexico = INT;
+                    aceptado = 1;
+                }
+                break;
+            case 11: // hex_lit ou hex_float_lit
+                if (c == '_') {
+                    estado = 12;
+                } else {
+                    estado = 13;
+                }
+                break;
+            case 12:
+                if (!isdigit(c) &&
+                    ((c < 65) || (c > 70)) &&
+                    ((c < 97) || (c > 102))) {
+                    // TODO: que error lanzar aquí? Pode ser INT ou FLOAT. Un error diferente que abarque ambos?
+                    lanzarErro(INT_MAL_FORMADO);
+                    saltarLexema();
+                    erro = 1;
+                } else {
+                    estado = 13;
+                }
+                break;
+            case 13:
+                if (!isdigit(c) &&
+                    ((c < 65) || (c > 70)) &&
+                    ((c < 97) || (c > 102))) {
+
+                    switch (c) {
+                        case '.': // Posible parte decimal dun hex_float_lit ou PUNTO
+                            estado = 14;
+                            break;
+                        case 'p':
+                        case 'P': // Expoñente dun hex_float_lit
+                            estado = 15;
+                            break;
+                        default: // Non hai expoñente nin parte decimal, entón é un hex_lit que é un INT
+                            devolverCaracter();
+                            aceptarLexema(&comp);
+                            comp.comp_lexico = INT;
+                            aceptado = 1;
+                            break;
+                    }
+                }
+                break;
+            case 14: // TODO: Estábase nun número hexadecimal e leuse un .
+
+                break;
+            case 15: // TODO: Expoñente dun hex_float_lit
+
+                break;
+            case 16: // TODO: Expoñente dun decimal_float_lit
+
                 break;
         }
+        // TODO: falta todos o dos imaginarios
     } while (c != EOF && !aceptado && !erro);
+
+    if (erro) {
+        saltarLexema();
+    }
 }
 
 void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
@@ -279,23 +397,15 @@ void _strings() {
                     break;
             }
         } while ((c != '"' || escapado) && c != EOF);
-
-        if (c == EOF) {
-            lanzarErro(STRING_INTERPRETADO_NON_PECHADO);
-            erro = 1;
-        }
     } else {                    // Se é un string crudo:
         do {
             c = segCaracter();
         } while (c != '`' && c != EOF);
-
-        if (c == EOF) {
-            lanzarErro(STRING_CRUDO_NON_PECHADO);
-            erro = 1;
-        }
     }
 
-    if (erro) {
+    if (c == EOF) {
+        lanzarErro(STRING_NON_PECHADO);
+    } else if (erro) {
         saltarLexema();
     } else {
         aceptarLexema(&comp);
