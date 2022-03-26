@@ -8,7 +8,7 @@ HEADER_FILES_DIR = .
 INCLUDES = -I $(HEADER_FILES_DIR)
 
 # Nome do executable
-OUTPUT = analizadorLexico
+OUTPUT = analizadorLexicoGo
 
 # Ficheiros .h
 LIB_HEADERS = analizadorLexico.h analizadorSintactico.h definicions.h sistemaEntrada.h taboaSimbolos.h xestionErros.h abb.h
