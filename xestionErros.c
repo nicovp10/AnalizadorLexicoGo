@@ -36,7 +36,16 @@ void lanzarErro(int codigo) {
             printf("\nERRO: secuencia de caracter escapado descoñecida.\n\n");
             break;
         case INT_MAL_FORMADO:
-            printf("\nERRO: enteiro mal formado, esperábase un número tras a _.\n\n");
+            printf("\nERRO: enteiro mal formado.\n\n");
+            break;
+        case FLOAT_EXPO_MAL_FORMADO:
+            printf("\nERRO: número en punto flotante mal formado (expoñente mal formado).\n\n");
+            break;
+        case FLOAT_HEX_MAL_FORMADO:
+            printf("\nERRO: hexadecimal en punto flotante mal formado (esperábase como mínimo un número no expoñente).\n\n");
+            break;
+        case IMAGINARY_MAL_FORMADO:
+            printf("\nERRO: número imaxinario mal formado (esperábase a letra final 'i').\n\n");
             break;
         case RUNA_NON_PECHADA:
             printf("\nERRO: runa non pechada.\n\n");
