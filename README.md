@@ -1,1 +1,1 @@
-# CompInt-P1
+# Analizador léxico del lenguaje Go

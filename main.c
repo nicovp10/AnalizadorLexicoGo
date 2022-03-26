@@ -19,5 +19,5 @@ int main(int argc, char **argv) {
     imprimirTS();
     finalizarTS();
 
-    exit(EXIT_SUCCESS);
+    exit(0);
 }

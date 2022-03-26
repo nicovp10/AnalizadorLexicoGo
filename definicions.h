@@ -36,7 +36,7 @@ typedef struct {
 #define TYPE 324
 #define VAR 325
 
-#define ANGULARESIZQ 326        // <<
+#define ANGULARESESQ 326        // <<
 #define ANGULARESDER 327        // >>
 #define AMPEREXP 328            // &^
 #define SUMAIGUAL 329           // +=
@@ -47,50 +47,27 @@ typedef struct {
 #define AMPERIGUAL 334          // &=
 #define VERTIGUAL 335           // |=
 #define EXPIGUAL 336            // ^=
-#define ANGULARESIZQIGUAL 337   // <<=
+#define ANGULARESESQIGUAL 337   // <<=
 #define ANGULARESDERIGUAL 338   // >>=
 #define AMPEREXPIGUAL 339       // &^=
 #define AMPERDOBLE 340          // &&
 #define VERTDOBLE 341           // ||
-#define FLECHAIZQ 342           // <-
+#define FRECHAESQ 342           // <-
 #define SUMADOBLE 343           // ++
 #define RESTADOBLE 344          // --
 #define IGUALDOBLE 345          // ==
 #define EXCLAMACIONIGUAL 346    // !=
 #define MENORIGUAL 347          // <=
-#define MAYORIGUAL 348          // >=
-#define DOSPUNTOSIGUAL 349      // :=
+#define MAIORIGUAL 348          // >=
+#define DOUSPUNTOSIGUAL 349     // :=
 #define PUNTOTRIPLE 350         // ...
 
 #define INT 351
 #define FLOAT 352
 #define IMAGINARY 353
+
 #define RUNE 354
 #define STRING 355
 
-// TODO: borrar caracteres simples
-#define SUMA 1                // +
-#define RESTA 2               // -
-#define MULT 3                // *
-#define DIV 4                 // /
-#define MOD 5                 // %
-#define AMPER 6               // &
-#define VERT 7                // |
-#define EXP 8                 // ^
-#define MENORQUE 9            // <
-#define MAYORQUE 10            // >
-#define IGUAL 11               // =
-#define EXCLAMACION 12         // !
-#define PARENTESISIZQ 13       // (
-#define CORCHETEIZQ 14         // [
-#define CHAVEIQZ 15            // {
-#define COMA 16                // ,
-#define PUNTO 17               // .
-#define PARENTESISDER 18       // )
-#define CORCHETEDER 19         // ]
-#define CHAVEDER 20            // }
-#define PUNTOECOMA 21          // ;
-#define DOUSPUNTOS 22          // :
-#define BLANK_ID 23
 
 #endif

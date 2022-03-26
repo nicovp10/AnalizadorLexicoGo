@@ -187,26 +187,36 @@ void devolverCaracter() {
 
 // Acepta o lexema que está léndose actualmente, reubicando os punteiros do búffer
 void aceptarLexema(CompLexico *comp) {
+    int tam_lexema;
     // Compróbanse a posición relativa entre ambos punteiros do buffer
     // As dúas primeiras comprobacións son se os punteiros están en bloques distintos
     if (buf.inicio < TAM && buf.dianteiro >= TAM) {         // Se inicio está en A e dianteiro en B:
         // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
-        comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
+        //  Súmaselle 1 para o '\0'
+        tam_lexema = buf.dianteiro - buf.inicio;
+        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
 
         // Cópiase a parte do bloque A no campo do lexema
         strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
 
+        // Engádese o '\0' ao final para evitar warnings / erros na xestión da memoria
+        comp->lexema[(TAM - buf.inicio) * sizeof(char)] = '\0';
+
         // Concaténase a parte do bloque B no campo do lexema
         strncat(comp->lexema, buf.B, (buf.dianteiro - TAM) * sizeof(char));
     } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
-        // Resérvase a memoria restando TAM menos inicio máis dianteiro para obter o número de chars a reservar
+        // Resérvase a memoria restando 2*TAM menos inicio máis dianteiro para obter o número de chars a reservar
+        //  Súmaselle 1 para o '\0'
         // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
-        comp->lexema = malloc((2 * TAM - buf.inicio + buf.dianteiro) * sizeof(char));
+        tam_lexema = 2 * TAM - buf.inicio + buf.dianteiro;
+        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
 
         strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
+        comp->lexema[(2 * TAM - buf.inicio) * sizeof(char)] = '\0';
         strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
     } else {                                                // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
-        comp->lexema = malloc((buf.dianteiro - buf.inicio) * sizeof(char));
+        tam_lexema = buf.dianteiro - buf.inicio;
+        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
 
         // Compróbase o bloque no que está para a selección
         if (buf.activo == 0) {
@@ -215,6 +225,8 @@ void aceptarLexema(CompLexico *comp) {
             strncpy(comp->lexema, buf.B + buf.inicio - TAM, (buf.dianteiro - buf.inicio) * sizeof(char));
         }
     }
+    // Engádese o '\0' ao final para evitar warnings / erros na xestión da memoria
+    comp->lexema[tam_lexema] = '\0';
 
     saltarLexema();
 
@@ -238,5 +250,5 @@ void saltarLexema() {
 
 // Finalización do sistema de entrada
 void finalizarSistemaEntrada() {
-    free(f_codigo_fonte);
+    fclose(f_codigo_fonte);
 }

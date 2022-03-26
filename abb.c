@@ -97,8 +97,9 @@ void insertar(abb *A, tipoelem E) {
     if (vacia(*A)) {
         *A = (abb) malloc(sizeof(struct celda));
         (*A)->info.comp_lexico = E.comp_lexico;
-        (*A)->info.lexema = malloc(strlen(E.lexema) * sizeof(char));
-        strncpy((*A)->info.lexema, E.lexema, strlen(E.lexema) * sizeof(char));
+        (*A)->info.lexema = malloc((strlen(E.lexema) + 1) * sizeof(char));
+        strcpy((*A)->info.lexema, E.lexema);
+        (*A)->info.lexema[strlen(E.lexema)] = '\0';
         (*A)->izq = NULL;
         (*A)->der = NULL;
         return;

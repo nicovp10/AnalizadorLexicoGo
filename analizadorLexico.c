@@ -9,8 +9,8 @@
 
 
 CompLexico comp = {0, NULL};
-int aceptado, erro;
 char c = ' ';
+int aceptado, erro;
 
 
 /* Función auxiliar que le un número concreto de díxitos hexadecimais
@@ -31,7 +31,8 @@ int _lerDixitosHex(int n) {
  *      return 0: éxito
  *      return 1: erro
  */
-int _serOctal(char caracter) {
+int _serOctal(int caracter) {
+    // Compárase o caracter cos valores ASCII correspondentes a 0 (48) e 7 (55)
     if ((caracter >= 48) && (caracter <= 55)) {
         return 1;
     }
@@ -70,7 +71,7 @@ void _alfanumerico() {
 }
 
 void _numerico() {
-    int i, estado, empezarPunto = 0, contaPuntos = 0;
+    int estado, empezarPunto = 0, contaPuntos = 0;
 
     switch (c) {
         case '0': // Pode ser diversos tipos de número: decimal (0), binario, octal, hexadecimal ou imaxinario
@@ -114,6 +115,9 @@ void _numerico() {
                 break;
             case 1: // Pode ser diversos tipos de número: decimal (0), binario, octal, hexadecimal ou imaxinario
                 switch (c) {
+                    case 'i':
+                        _aceptarLexema(IMAGINARY, 0);
+                        break;
                     case 'b':
                     case 'B': // binary_lit
                         estado = 10;
@@ -231,6 +235,7 @@ void _numerico() {
                         }
                         break;
                 }
+                break;
             case 7: // Expoñente do decimal_float_lit con signo
                 if (isdigit(c)) { // Se se le un número, tense que ler a parte numérica do expoñente
                     estado = 8;
@@ -320,7 +325,8 @@ void _numerico() {
                 }
                 break;
             case 14: // octal_lit con letra: estado inicial
-                if (c == '_') {                     // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito octal
+                if (c ==
+                    '_') {                     // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito octal
                     estado = 16;
                 } else if (_serOctal(c)) {  // Se se le un díxito octal, tense que ler a parte numérica do octal_lit
                     estado = 17;
@@ -381,7 +387,7 @@ void _numerico() {
                         break;
                     default:
                         if (!isdigit(c)) {  // Se non se le ningún dos caracteres anteriores nin un número,
-                                            //  lánzase erro xa que non corresponde a ningún tipo de número
+                            //  lánzase erro xa que non corresponde a ningún tipo de número
                             // Devólvese o caracter que activou a condición de aceptación
                             _lanzarErro(IMAGINARY_MAL_FORMADO, 1);
                         }
@@ -405,7 +411,8 @@ void _numerico() {
                         estado = 25;
                         break;
                     default:
-                        if (isxdigit(c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
+                        if (isxdigit(
+                                c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
                             estado = 23;
                         } else {           // Se non se le un díxito hexadecimal, devólvese o número '0'
                             // Devólvense dous caracteres: (...)x{c}
@@ -415,7 +422,8 @@ void _numerico() {
                 }
                 break;
             case 22: // hex_lit e leuse '_' inicial
-                if (isxdigit(c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
+                if (isxdigit(
+                        c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
                     estado = 23;
                 } else {           // Se non se le un díxito hexadecimal, devólvese o número '0'
                     // Devólvense tres caracteres: (...)x_{c}
@@ -460,7 +468,8 @@ void _numerico() {
                         estado = 28;
                         break;
                     default:
-                        if (isxdigit(c)) { // Se se le un díxito hexadecimal, tense que ler a parte decimal dun hex_float_lit
+                        if (isxdigit(
+                                c)) { // Se se le un díxito hexadecimal, tense que ler a parte decimal dun hex_float_lit
                             estado = 26;
                         } else {           // Se non se le un díxito hexadecimal, é INT e acéptase
                             // Devólvense dous caracteres: (...).{c}
@@ -479,7 +488,7 @@ void _numerico() {
                         break;
                     default:
                         if (!isxdigit(c)) { // Se non se le un díxito hexadecimal,
-                                            //  lánzase erro xa que se esperaba o expoñente
+                            //  lánzase erro xa que se esperaba o expoñente
                             // Devólvese o caracter que activou a condición de erro
                             _lanzarErro(FLOAT_HEX_MAL_FORMADO, 1);
                         }
@@ -489,7 +498,7 @@ void _numerico() {
                 if (isxdigit(c)) { // Se se le un díxito hexadecimal, vólvese ao estado anterior
                     estado = 26;
                 } else {           // Se non se le un díxito hexadecimal,
-                                   //  lánzase erro xa que se esperaba o expoñente
+                    //  lánzase erro xa que se esperaba o expoñente
                     // Devólvense dous caracteres: (...)_{c}
                     _lanzarErro(FLOAT_HEX_MAL_FORMADO, 2);
                 }
@@ -689,7 +698,7 @@ void _strings() {
 }
 
 void _comentarios() {
-    int estado;
+    int estado, saltado = 0;
 
     c = segCaracter();
     if (c == '/') {
@@ -700,14 +709,14 @@ void _comentarios() {
         estado = 3;
     }
 
-    while (!aceptado && !erro) {
+    while (!saltado && !aceptado && !erro) {
         switch (estado) {
             case 0: // Comentario dunha liña
                 do {
                     c = segCaracter();
                 } while (c != '\n' && c != EOF);
                 saltarLexema();
-                aceptado = 1;
+                saltado = 1;
                 break;
             case 1: // Comentario de múltiples liñas
                 do {
@@ -716,7 +725,6 @@ void _comentarios() {
                 if (c == EOF) {
                     _lanzarErro(COMENTARIO_MULTILINEA_NON_PECHADO, 0);
                     saltarLexema();
-                    erro = 1;
                 } else {
                     estado = 2;
                 }
@@ -725,14 +733,18 @@ void _comentarios() {
                 c = segCaracter();
                 if (c == '/') {
                     saltarLexema();
-                    aceptado = 1;
+                    saltado = 1;
                 } else {
                     estado = 1;
                 }
                 break;
-            case 3: // Se despois da primeira / vén algo distinto de / ou *, é o operador de división
-                // Devólvese o caracter que activou a condición de erro
-                _aceptarLexema('/', 1);
+            case 3: // Se despois da primeira / vén algo distinto de / ou *, pode ser / ou DIVIGUAL
+                if (c == '=') {
+                    _aceptarLexema(DIVIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('/', 1);
+                }
                 break;
         }
     }
@@ -748,6 +760,7 @@ void _limparComp() {
     }
 }
 
+
 // Inicio do analizador léxico
 void iniciarAnalizadorLexico(char *nomeFicheiro) {
     iniciarSistemaEntrada(nomeFicheiro);
@@ -760,10 +773,10 @@ CompLexico segCompLexico() {
     aceptado = 0;
     erro = 0;
 
-    while (c != EOF && !aceptado && !erro) {
+    do {
+        c = segCaracter();
         switch (estado) {
             case 0: // Estado inicial do analizador léxico
-                c = segCaracter();
                 if (isalpha(c) || c == '_') {       // Se comeza por unha letra ou _, AF de cadeas alfanuméricas
                     _alfanumerico();                //      Acepta ID e keywords
                 } else if (isdigit(c) || c == '.') {// Se comeza por un número ou ., AF de cadeas numéricas
@@ -778,7 +791,70 @@ CompLexico segCompLexico() {
                             _strings();             //      Acepta STRING
                             break;
                         case '/':                   // Se comeza por /, AF de comentarios
-                            _comentarios();         //      Acepta / e sáltase os comentarios
+                            _comentarios();         //      Acepta /, DIVIGUAL e sáltase os comentarios
+                            break;
+                        case '+':
+                            estado = 1;
+                            break;
+                        case '-':
+                            estado = 2;
+                            break;
+                        case '*':
+                            estado = 3;
+                            break;
+                        case '%':
+                            estado = 4;
+                            break;
+                        case '&':
+                            estado = 5;
+                            break;
+                        case '|':
+                            estado = 7;
+                            break;
+                        case '^':
+                            estado = 8;
+                            break;
+                        case '<':
+                            estado = 9;
+                            break;
+                        case '>':
+                            estado = 11;
+                            break;
+                        case '=':
+                            estado = 13;
+                            break;
+                        case '!':
+                            estado = 14;
+                            break;
+                        case '~':
+                            _aceptarLexema('~', 0);
+                            break;
+                        case ':':
+                            estado = 15;
+                            break;
+                        case '(':
+                            _aceptarLexema('(', 0);
+                            break;
+                        case '[':
+                            _aceptarLexema('[', 0);
+                            break;
+                        case '{':
+                            _aceptarLexema('{', 0);
+                            break;
+                        case ',':
+                            _aceptarLexema(',', 0);
+                            break;
+                        case ')':
+                            _aceptarLexema(')', 0);
+                            break;
+                        case ']':
+                            _aceptarLexema(']', 0);
+                            break;
+                        case '}':
+                            _aceptarLexema('}', 0);
+                            break;
+                        case ';':
+                            _aceptarLexema(';', 0);
                             break;
                         case EOF:                   // Se é EOF, indícase para finalizar
                             comp.lexema = NULL;
@@ -790,8 +866,170 @@ CompLexico segCompLexico() {
                     }
                 }
                 break;
+            case 1: // Leuse '+'
+                switch (c) {
+                    case '+':
+                        _aceptarLexema(SUMADOBLE, 0);
+                        break;
+                    case '=':
+                        _aceptarLexema(SUMAIGUAL, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '+' ou '='
+                        _aceptarLexema('+', 1);
+                        break;
+                }
+                break;
+            case 2: // Leuse '-'
+                switch (c) {
+                    case '-':
+                        _aceptarLexema(RESTADOBLE, 0);
+                        break;
+                    case '=':
+                        _aceptarLexema(RESTAIGUAL, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '-' ou '='
+                        _aceptarLexema('-', 1);
+                        break;
+                }
+                break;
+            case 3: // Leuse '*'
+                if (c == '=') {
+                    _aceptarLexema(MULTIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('*', 1);
+                }
+                break;
+            case 4: // Leuse '%'
+                if (c == '=') {
+                    _aceptarLexema(MODIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('%', 1);
+                }
+                break;
+            case 5: // Leuse '&'
+                switch (c) {
+                    case '^':
+                        estado = 6;
+                        break;
+                    case '=':
+                        _aceptarLexema(AMPERIGUAL, 0);
+                        break;
+                    case '&':
+                        _aceptarLexema(AMPERDOBLE, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '^', '=' ou '&'
+                        _aceptarLexema('&', 1);
+                        break;
+                }
+                break;
+            case 6: // Leuse '&^'
+                if (c == '=') {
+                    _aceptarLexema(AMPEREXPIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema(AMPEREXP, 1);
+                }
+                break;
+            case 7: // Leuse '|'
+                switch (c) {
+                    case '=':
+                        _aceptarLexema(VERTIGUAL, 0);
+                        break;
+                    case '|':
+                        _aceptarLexema(VERTDOBLE, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '=' ou '|'
+                        _aceptarLexema('|', 1);
+                        break;
+                }
+                break;
+            case 8: // Leuse '^'
+                if (c == '=') {
+                    _aceptarLexema(EXPIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('=', 1);
+                }
+                break;
+            case 9: // Leuse '<'
+                switch (c) {
+                    case '<':
+                        estado = 10;
+                        break;
+                    case '-':
+                        _aceptarLexema(FRECHAESQ, 0);
+                        break;
+                    case '=':
+                        _aceptarLexema(MENORIGUAL, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '<', '-' ou '='
+                        _aceptarLexema('<', 1);
+                        break;
+                }
+                break;
+            case 10: // Leuse '<<'
+                if (c == '=') {
+                    _aceptarLexema(ANGULARESESQIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema(ANGULARESESQ, 1);
+                }
+                break;
+            case 11: // Leuse '>'
+                switch (c) {
+                    case '>':
+                        estado = 12;
+                        break;
+                    case '=':
+                        _aceptarLexema(MAIORIGUAL, 0);
+                        break;
+                    default:
+                        // Devólvese o caracter que non é '>' ou '='
+                        _aceptarLexema('>', 1);
+                        break;
+                }
+                break;
+            case 12: // Leuse '>>'
+                if (c == '=') {
+                    _aceptarLexema(ANGULARESDERIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema(ANGULARESDER, 1);
+                }
+                break;
+            case 13: // Leuse '='
+                if (c == '=') {
+                    _aceptarLexema(IGUALDOBLE, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('=', 1);
+                }
+                break;
+            case 14: // Leuse '!'
+                if (c == '=') {
+                    _aceptarLexema(EXCLAMACIONIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema('!', 1);
+                }
+                break;
+            case 15: // Leuse ':'
+                if (c == '=') {
+                    _aceptarLexema(DOUSPUNTOSIGUAL, 0);
+                } else {
+                    // Devólvese o caracter que non é '='
+                    _aceptarLexema(':', 1);
+                }
+                break;
         }
-    }
+    } while (c != EOF && !aceptado && !erro);
 
     return comp;
 }
