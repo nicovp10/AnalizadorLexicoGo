@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "taboaSimbolos.h"
@@ -9,7 +8,7 @@
 abb TS;
 
 
-// Recorrido inorde da árbore
+// Función auxiliar que realiza un recorrido inorde da árbore
 void _auxImprimir(abb A) {
     tipoelem E;
     if (!vacia(A)) {
@@ -20,7 +19,7 @@ void _auxImprimir(abb A) {
     }
 }
 
-
+// Función que inicia a táboa de símbolos
 void iniciarTS() {
     tipoelem keywords[] = {
             {BREAK,       "break"},
@@ -56,6 +55,8 @@ void iniciarTS() {
     }
 }
 
+// Función que busca un compoñente léxico concreto na táboa de símbolos
+//  Se este compoñente léxico non está na táboa, insértao
 void buscar_insertar(CompLexico *comp) {
     tipoelem comp_busqueda = {0, NULL};
 
@@ -64,16 +65,17 @@ void buscar_insertar(CompLexico *comp) {
     if (comp_busqueda.lexema == NULL) { // Se non está na TS, insértase e devólvese
         comp->comp_lexico = ID;
         insertar(&TS, *comp);
-    } else {
-        // Se está na TS, devólvese o atopado
+    } else {                            // Se está na TS, devólvese o atopado
         comp->comp_lexico = comp_busqueda.comp_lexico;
     }
 }
 
+// Función que finaliza a táboa de símbolos
 void finalizarTS() {
     destruir(&TS);
 }
 
+// Función que imprime a táboa de símbolos por orde alfabético dos lexemas
 void imprimirTS() {
     printf("\n\n----- TÁBOA DE SÍMBOLOS -----\n");
     _auxImprimir(TS);

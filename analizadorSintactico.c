@@ -4,6 +4,7 @@
 #include "analizadorLexico.h"
 
 
+// Función que invoca ao analizador sintáctico
 void analizadorSintactico(char *nomeFicheiro) {
     CompLexico comp;
 

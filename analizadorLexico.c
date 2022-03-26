@@ -20,7 +20,7 @@ int aceptado, erro;
 int _lerDixitosHex(int n) {
     for (int i = 0; i < n; i++) {
         c = segCaracter();
-        if (!isxdigit(c)) { // Se non é un díxito hexadecimal:
+        if (!isxdigit(c)) { // Se non é un díxito hexadecimal, devolve erro
             return 1;
         }
     }
@@ -39,7 +39,7 @@ int _serOctal(int caracter) {
     return 0;
 }
 
-// Función que acepta un lexema
+// Función auxiliar que acepta un lexema
 void _aceptarLexema(int codigo_comp, int chars_a_devolver) {
     for (int i = 0; i < chars_a_devolver; i++) {
         devolverCaracter();
@@ -49,16 +49,17 @@ void _aceptarLexema(int codigo_comp, int chars_a_devolver) {
     aceptado = 1;
 }
 
-// Función que lanza un erro
-void _lanzarErro(int codigo, int chars_a_devolver) {
+// Función auxiliar que lanza un erro
+void _lanzarErro(int codigo_erro, int chars_a_devolver) {
     for (int i = 0; i < chars_a_devolver; i++) {
         devolverCaracter();
     }
-    lanzarErro(codigo);
+    lanzarErro(codigo_erro);
     erro = 1;
 }
 
 
+// Función auxiliar correspondente ao AF de cadeas alfanuméricas
 void _alfanumerico() {
     do {
         c = segCaracter();
@@ -70,17 +71,20 @@ void _alfanumerico() {
     aceptado = 1;
 }
 
+// Función auxiliar correspondente ao AF de cadeas numéricas
 void _numerico() {
     int estado, empezarPunto = 0, contaPuntos = 0;
 
     switch (c) {
-        case '0': // Pode ser diversos tipos de número: decimal (0), binario, octal, hexadecimal ou imaxinario
+        case '0': // Poden ser diversos tipos de número: decimal_lit ('0'), bin_lit, octal_lit,
+            //                                        hex_lit, hex_float_lit ou IMAGINARY
             estado = 1;
             break;
         case '.': // decimal_float_lit, '.' ou PUNTOTRIPLE
             estado = 2;
-            empezarPunto = 1;
-            contaPuntos++;
+            empezarPunto = 1; // Esta variable serve para aceptar '.' e PUNTOTRIPLE
+            contaPuntos++;    // Esta variable serve para levar a conta dos puntos lidos
+            //    Ver estado 2 -> caso default do switch
             break;
         default: // decimal_lit ou decimal_float_lit
             estado = 0;
@@ -105,7 +109,7 @@ void _numerico() {
                     case 'i': // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
                         break;
-                    default:    // Se non se le ningunha das letras anteriores nin un número, é INT e acéptase
+                    default:  // Se non se le ningún dos caracteres anteriores nin un número, é INT e acéptase
                         if (!isdigit(c)) {
                             // Devólvese o caracter que activou a condición de aceptación
                             _aceptarLexema(INT, 1);
@@ -113,30 +117,31 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 1: // Pode ser diversos tipos de número: decimal (0), binario, octal, hexadecimal ou imaxinario
+            case 1: // Poden ser diversos tipos de número: decimal_lit ('0'), bin_lit, octal_lit,
+                //                                      hex_lit, hex_float_lit ou IMAGINARY
                 switch (c) {
-                    case 'i':
+                    case 'i': // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
                         break;
                     case 'b':
-                    case 'B': // binary_lit
+                    case 'B': // Se se le 'b' ou 'B', é binary_lit
                         estado = 10;
                         break;
                     case 'o':
-                    case 'O': // octal_lit
+                    case 'O': // Se se le 'o' ou 'O', é octal_lit
                         estado = 14;
                         break;
-                    case '_': // octal_lit ou IMAGINARY
+                    case '_': // Se se le '_', pode ser octal_lit ou IMAGINARY
                         estado = 15;
                         break;
                     case 'x':
-                    case 'X': // hex_lit ou hex_float_lit
+                    case 'X': // Se se le 'x' ou 'X', pode ser hex_lit ou hex_float_lit
                         estado = 21;
                         break;
                     default:
-                        if (_serOctal(c)) { // octal_lit que comeza por 0, sen letra
+                        if (_serOctal(c)) { // Se é un díxito octal, é octal_lit que comeza por 0, sen letra o ou O
                             estado = 17;
-                        } else if (c == '8' || c == '9') {  // Inicio dun posible IMAGINARY
+                        } else if (c == '8' || c == '9') {  // Se non é díxito octal, é o inicio dun IMAGINARY
                             estado = 19;
                         } else { // Se non se le nada do indicado anteriormente, é INT e acéptase
                             // Devólvese o caracter que activou a condición de aceptación
@@ -154,11 +159,12 @@ void _numerico() {
                     default:
                         if (isdigit(c)) {   // Se se le un número, tense que ler a parte decimal dun decimal_float_lit
                             estado = 4;
-                        } else {            // Se non se lé nin 'e' ou 'E' nin un número, acéptase
+                        } else {            // Se non se lé nin 'e' ou 'E' nin un número, realízanse unha serie de
+                            //  comprobacións para comprobar de que compoñente léxico se trata
                             // Devólvese o caracter que activou a condición de aceptación
                             devolverCaracter();
                             if (empezarPunto) {     // Se se empezou recoñecendo un punto, ao non ter parte enteira non é un número, se non un punto.
-                                //  Hai que comprobar se poden ser tres puntos
+                                // Compróbase se pode ser PUNTOTRIPLE
                                 do {
                                     c = segCaracter();
                                     if (c == '.') {
@@ -166,17 +172,20 @@ void _numerico() {
                                     }
                                 } while (contaPuntos < 3 && c == '.');
 
-                                // Se o while rematou porque leu un caracter que non era un punto, este devólvese
-                                if (c != '.') {
-                                    devolverCaracter();
-                                }
 
-                                if (contaPuntos == 3) {
+                                if (contaPuntos == 3) { // Se se contaron 3 puntos, é PUNTORIPLE e acéptase
                                     _aceptarLexema(PUNTOTRIPLE, 0);
-                                } else {
-                                    _aceptarLexema('.', 0);
+                                } else {                // Se non se contaron 3 puntos, é '.' e acéptase
+                                    // Se o while rematou recoñecendo dous puntos,
+                                    //  devólvese un caracter extra para solucionar o desfase do segundo punto
+                                    if (contaPuntos == 2) {
+                                        devolverCaracter();
+                                    }
+
+                                    // Devólvese o caracter que provocou a parada do while
+                                    _aceptarLexema('.', 1);
                                 }
-                            } else {                // Se non se empezou recoñecendo un punto, é FLOAT
+                            } else {                // Se non se empezou recoñecendo un punto, é FLOAT e acéptase
                                 _aceptarLexema(FLOAT, 0);
                             }
                         }
@@ -197,14 +206,14 @@ void _numerico() {
                     case '_': // Se se le '_', tense que ler un número posteriormente
                         estado = 5;
                         break;
-                    case 'e': // Se se le 'e' ou 'E', tense que ler o expoñente
-                    case 'E':
+                    case 'e':
+                    case 'E': // Se se le 'e' ou 'E', tense que ler o expoñente
                         estado = 6;
                         break;
                     case 'i': // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
                         break;
-                    default: // Se non se le ningunha das letras anteriores nin un número, é FLOAT e acéptase
+                    default: // Se non se le ningún dos caracteres anteriores nin un número, é FLOAT e acéptase
                         // Devólvese o caracter que activou a condición de aceptación
                         if (!isdigit(c)) {
                             _aceptarLexema(FLOAT, 1);
@@ -230,21 +239,21 @@ void _numerico() {
                         if (isdigit(c)) { // Se se le un número, tense que ler a parte numérica do expoñente
                             estado = 8;
                         } else {          // Se non se le un número, lánzase un erro porque o expoñente non está ben formado
-                            // Devólvense dous caracteres: (...)e{c}
+                            // Devólvense dous caracteres: (...)e{c} ou (...)E{c}
                             _lanzarErro(FLOAT_EXPO_MAL_FORMADO, 2);
                         }
                         break;
                 }
                 break;
-            case 7: // Expoñente do decimal_float_lit con signo
+            case 7: // Expoñente dun decimal_float_lit con signo
                 if (isdigit(c)) { // Se se le un número, tense que ler a parte numérica do expoñente
                     estado = 8;
                 } else {          // Se non se le un número, lánzase un erro porque o expoñente non está ben formado
-                    // Devólvense dous caracteres: (...){signo}{c}
-                    _lanzarErro(FLOAT_EXPO_MAL_FORMADO, 2);
+                    // Devólvense dous caracteres: (...)e+{c} ou (...)e-{c}
+                    _lanzarErro(FLOAT_EXPO_MAL_FORMADO, 3);
                 }
                 break;
-            case 8: // Díxitos do expoñente do decimal_float_lit
+            case 8: // Díxitos do expoñente dun decimal_float_lit
                 switch (c) {
                     case '_': // Se se le '_', tense que ler un número posteriormente
                         estado = 9;
@@ -252,7 +261,7 @@ void _numerico() {
                     case 'i': // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
                         break;
-                    default: // Acéptase cando o que continúa non é un número
+                    default: // Se non se le nin '_' nin 'i' nin un número, é FLOAT e acéptase
                         if (!isdigit(c)) {
                             // Devólvese o caracter que activou a condición de aceptación
                             _aceptarLexema(FLOAT, 1);
@@ -260,7 +269,7 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 9: // Expoñente dun FLOAT e leuse '_' entre números
+            case 9: // Expoñente dun decimal_float_lit e leuse '_' entre números
                 if (isdigit(c)) {   // Se se le un número, vólvese ao estado anterior
                     estado = 8;
                 } else {            // Se non se le un número, é FLOAT e acéptase:
@@ -268,7 +277,7 @@ void _numerico() {
                     _aceptarLexema(FLOAT, 2);
                 }
                 break;
-            case 10: // binary_lit: estado inicial
+            case 10: // Inicio dun binary_lit
                 switch (c) {
                     case '_': // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito binario
                         estado = 11;
@@ -289,7 +298,7 @@ void _numerico() {
                     case '1': // Se se le un díxito binario, tense que ler a parte numérica do binary_lit
                         estado = 12;
                         break;
-                    default: // Se despois de '_' non vén un díxito binario, devólvese o número '0'
+                    default: // Se non se le un díxito binario, devólvese o número '0'
                         // Devólvense tres caracteres: (...)b_{c}
                         _aceptarLexema(INT, 3);
                         break;
@@ -312,7 +321,7 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 13: // binary_lit e lese '_' entre díxitos binarios
+            case 13: // binary_lit e leuse '_' entre díxitos binarios
                 switch (c) {
                     case '0':
                     case '1': // Se se le un díxito binario, vólvese ao estado anterior
@@ -324,18 +333,17 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 14: // octal_lit con letra: estado inicial
-                if (c ==
-                    '_') {                     // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito octal
+            case 14: // Inicio dun octal_lit con letra o ou O
+                if (c =='_') {                     // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito octal
                     estado = 16;
-                } else if (_serOctal(c)) {  // Se se le un díxito octal, tense que ler a parte numérica do octal_lit
+                } else if (_serOctal(c)) { // Se se le un díxito octal, tense que ler a parte numérica do octal_lit
                     estado = 17;
-                } else {                            // Se non se le nin '_' nin un díxito octal, devólvese o número '0'
-                    // Devólvense dous caracteres: (...)o{c}
+                } else {                           // Se non se le nin '_' nin un díxito octal, devólvese o número '0'
+                    // Devólvense dous caracteres: (...)o{c} ou (...)O{c}
                     _aceptarLexema(INT, 2);
                 }
                 break;
-            case 15: // octal_lit sen letra: estado inicial
+            case 15: // Inicio dun octal_lit sen letra o ou O
                 if (_serOctal(c)) { // Se se le un díxito octal, tense que ler a parte numérica do octal_lit
                     estado = 17;
                 } else if (isdigit(c)) {    // Se non se le un díxito octal pero si un número, posible IMAGINARY
@@ -353,7 +361,7 @@ void _numerico() {
                     _aceptarLexema(INT, 3);
                 }
                 break;
-            case 17: // octal_lit con ou sen letra e leuse un díxito octal
+            case 17: // octal_lit (con ou sen letra) e leuse un díxito octal
                 switch (c) {
                     case '_': // Se se le '_', tense que ler un número posteriormente
                         estado = 18;
@@ -377,7 +385,7 @@ void _numerico() {
                     _aceptarLexema(INT, 2);
                 }
                 break;
-            case 19: // Número comezado por '0' e que non lle segue un díxito octal: posible IMAGINARY
+            case 19: // Número comezado por '0' e que non lle segue un díxito octal: IMAGINARY
                 switch (c) {
                     case 'i':   // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
@@ -394,7 +402,7 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 20: // Posible IMAGINARY e leuse '_'
+            case 20: // IMAGINARY e leuse '_'
                 if (isdigit(c)) {   // Se se le un número, vólvese ao estado anterior
                     estado = 19;
                 } else {            // Se non se le un número, lánzase erro xa que non corresponde a ningún tipo de número
@@ -402,7 +410,7 @@ void _numerico() {
                     _lanzarErro(IMAGINARY_MAL_FORMADO, 1);
                 }
                 break;
-            case 21: // hex_lit ou hex_float_lit: estado inicial
+            case 21: // Inicio dun hex_lit ou hex_float_lit
                 switch (c) {
                     case '_': // Se se le '_' inicial, tense que comprobar que posteriormente veña un díxito hexadecimal
                         estado = 22;
@@ -415,22 +423,22 @@ void _numerico() {
                                 c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
                             estado = 23;
                         } else {           // Se non se le un díxito hexadecimal, devólvese o número '0'
-                            // Devólvense dous caracteres: (...)x{c}
+                            // Devólvense dous caracteres: (...)x{c} ou (...)X{c}
                             _aceptarLexema(INT, 2);
                         }
                         break;
                 }
                 break;
-            case 22: // hex_lit e leuse '_' inicial
+            case 22: // hex_lit ou hex_float_lit e leuse '_' inicial
                 if (isxdigit(
                         c)) { // Se se le un díxito hexadecimal, tense que ler a parte enteira dun hex_lit ou hex_float_lit
                     estado = 23;
                 } else {           // Se non se le un díxito hexadecimal, devólvese o número '0'
-                    // Devólvense tres caracteres: (...)x_{c}
+                    // Devólvense tres caracteres: (...)x_{c} ou (...)X_{c}
                     _aceptarLexema(INT, 3);
                 }
                 break;
-            case 23: // hex_lit e leuse un díxito hexadecimal
+            case 23: // hex_lit ou hex_float_lit e leuse un díxito hexadecimal
                 switch (c) {
                     case 'i': // Se se le 'i', é IMAGINARY e acéptase
                         _aceptarLexema(IMAGINARY, 0);
@@ -445,7 +453,7 @@ void _numerico() {
                     case 'P': // Se se le 'p' ou 'P', tense que ler o expoñente dun hex_float_lit
                         estado = 28;
                         break;
-                    default: // Se non se le ningunha das letras anteriores nin un díxito hexadecimal, é INT e acéptase
+                    default: // Se non se le ningún dos caracteres anteriores nin un díxito hexadecimal, é INT e acéptase
                         if (!isxdigit(c)) {
                             // Devólvese o caracter que activou a condición de aceptación
                             _aceptarLexema(INT, 1);
@@ -453,7 +461,7 @@ void _numerico() {
                         break;
                 }
                 break;
-            case 24: // hex_lit e lese '_' entre díxitos
+            case 24: // Parte enteira dun hex_lit ou hex_float_lit e lese '_' entre díxitos
                 if (isxdigit(c)) { // Se se le un díxito hexadecimal, vólvese ao estado anterior
                     estado = 23;
                 } else {           // Se non se le un díxito hexadecimal, é INT e acéptase
@@ -471,7 +479,7 @@ void _numerico() {
                         if (isxdigit(
                                 c)) { // Se se le un díxito hexadecimal, tense que ler a parte decimal dun hex_float_lit
                             estado = 26;
-                        } else {           // Se non se le un díxito hexadecimal, é INT e acéptase
+                        } else {           // Se non se le nin 'p' ou 'P' nin un díxito hexadecimal, é INT e acéptase
                             // Devólvense dous caracteres: (...).{c}
                             _aceptarLexema(INT, 2);
                         }
@@ -487,7 +495,7 @@ void _numerico() {
                         estado = 27;
                         break;
                     default:
-                        if (!isxdigit(c)) { // Se non se le un díxito hexadecimal,
+                        if (!isxdigit(c)) { // Se non se le nin 'p' ou 'P' nin '_' nin un díxito hexadecimal,
                             //  lánzase erro xa que se esperaba o expoñente
                             // Devólvese o caracter que activou a condición de erro
                             _lanzarErro(FLOAT_HEX_MAL_FORMADO, 1);
@@ -557,6 +565,7 @@ void _numerico() {
     }
 }
 
+// Función auxiliar correspondente ao AF de runas
 void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
     int estado = 0, escapado, cont_chars = -1;
     // Inicialízase cont_chars a -1 para que non teña en conta a ' de peche
@@ -574,18 +583,20 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
             case 1: // Inicio dun unicode_char
                 switch (c) {
                     case 'x':   // Se é un byte hexadecimal:
-                        // Lense os díxitos hexadecimais correspondentes
+                        // Lense dous díxitos hexadecimais
                         if (_lerDixitosHex(2)) {
                             // Devólvese o caracter que activou a condición de erro
                             _lanzarErro(BYTE_HEX_POUCOS_DIXITOS, 1);
                         }
                         break;
                     case 'u':   // Se é un unicode pequeno:
+                        // Lense catro díxitos hexadecimais
                         if (_lerDixitosHex(4)) {
                             _lanzarErro(UNICODE_PEQUENO_INVALIDO, 1);
                         }
                         break;
                     case 'U':   // Se é un unicode grande:
+                        // Lense oito díxitos hexadecimais
                         if (_lerDixitosHex(8)) {
                             _lanzarErro(UNICODE_GRANDE_INVALIDO, 1);
                         }
@@ -594,7 +605,8 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
                         if (_serOctal(c)) {
                             for (int i = 0; i < 2; i++) {    // Lense os dous valores octais que faltan
                                 c = segCaracter();
-                                if (!_serOctal(c)) { // Se non son valores octais:
+                                if (!_serOctal(c)) { // Se non son valores octais,
+                                                             //     lánzase un erro por ser poucos díxitos octais
                                     _lanzarErro(BYTE_OCT_POUCOS_DIXITOS, 1);
                                     break;
                                 }
@@ -602,7 +614,7 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
                         } else if (c != 'a' && c != 'b' && c != 'f' && c != 'n' &&
                                    c != 'r' && c != 't' && c != 'v' && c != '\\' &&
                                    c != '\'' && c != '"') {
-                            // Compróbase se non é un caracter escapado
+                            // Se non é un caracter escapado, lánzase un erro por secuencia descoñecida
                             // Devólvese o caracter que activou a condición de erro
                             _lanzarErro(CARACTER_ESCAPADO_SECUENCIA_DESCONOCIDA, 1);
                         } else {
@@ -615,9 +627,9 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
         }
     } while ((c != '\'' || escapado) && c != EOF);
 
-    if (c == EOF) {
+    if (c == EOF) { // Se se chegou ao fin de ficheiro e non se pechou, lánzase un erro por runa sen pechar
         _lanzarErro(RUNA_NON_PECHADA, 0);
-    } else if (cont_chars > 1 && !erro) {
+    } else if (cont_chars > 1 && !erro) { // Se hai máis dun caracter na runa, lánzase un erro por moitos caracteres
         _lanzarErro(RUNA_MOITOS_CARACTERES, 0);
     }
 
@@ -628,6 +640,7 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
     }
 }
 
+// Función auxiliar correspondente ao AF de strings
 void _strings() {
     int estado = 0, escapado;
 
@@ -644,17 +657,19 @@ void _strings() {
                 case 1: // Inicio dun unicode_char
                     switch (c) {
                         case 'x':   // Se é un byte hexadecimal:
-                            // Lense os díxitos hexadecimais correspondentes
+                            // Lense dous díxitos hexadecimais correspondentes
                             if (_lerDixitosHex(2)) {
                                 _lanzarErro(BYTE_HEX_POUCOS_DIXITOS, 1);
                             }
                             break;
                         case 'u':   // Se é un unicode pequeno:
+                            // Lense catro díxitos hexadecimais correspondentes
                             if (_lerDixitosHex(4)) {
                                 _lanzarErro(UNICODE_PEQUENO_INVALIDO, 1);
                             }
                             break;
                         case 'U':   // Se é un unicode grande:
+                            // Lense oito díxitos hexadecimais correspondentes
                             if (_lerDixitosHex(8)) {
                                 _lanzarErro(UNICODE_GRANDE_INVALIDO, 1);
                             }
@@ -663,7 +678,8 @@ void _strings() {
                             if (_serOctal(c)) {   // Se é un valor octal
                                 for (int i = 0; i < 2; i++) {   // Lense os dous valores octais que faltan
                                     c = segCaracter();
-                                    if (!_serOctal(c)) {   // Se non son valores octais:
+                                    if (!_serOctal(c)) { // Se non son valores octais,
+                                                                 //     lánzase un erro por ser poucos díxitos octais
                                         _lanzarErro(BYTE_OCT_POUCOS_DIXITOS, 1);
                                         break;
                                     }
@@ -671,7 +687,8 @@ void _strings() {
                             } else if (c != 'a' && c != 'b' && c != 'f' && c != 'n' &&
                                        c != 'r' && c != 't' && c != 'v' && c != '\\' &&
                                        c != '\'' && c != '"') {
-                                // Compróbase se non é un caracter escapado
+                                // Se non é un caracter escapado, lánzase un erro por secuencia descoñecida
+                                // Devólvese o caracter que activou a condición de erro
                                 _lanzarErro(CARACTER_ESCAPADO_SECUENCIA_DESCONOCIDA, 1);
                             } else {
                                 escapado = 1;
@@ -688,15 +705,18 @@ void _strings() {
         } while (c != '`' && c != EOF);
     }
 
-    if (c == EOF) {
+    if (c == EOF) { // Se se chegou ao fin de ficheiro e non se pechou, lánzase un erro por string sen pechar
         _lanzarErro(STRING_NON_PECHADO, 0);
-    } else if (erro) {
+    }
+
+    if (erro) {
         saltarLexema();
     } else {
         _aceptarLexema(STRING, 0);
     }
 }
 
+// Función auxiliar correspondente ao AF de comentarios
 void _comentarios() {
     int estado, saltado = 0;
 
@@ -715,13 +735,17 @@ void _comentarios() {
                 do {
                     c = segCaracter();
                 } while (c != '\n' && c != EOF);
+                // Lense caracteres mentres non haxa un salto de liña ou fin de ficheiro
+
                 saltarLexema();
                 saltado = 1;
                 break;
-            case 1: // Comentario de múltiples liñas
+            case 1: // Comentario multiliña
                 do {
                     c = segCaracter();
                 } while (c != '*' && c != EOF);
+
+                // Se se chegou ao fin de ficheiro e non se pechou, lánzase un erro por comentario multiliña sen pechar
                 if (c == EOF) {
                     _lanzarErro(COMENTARIO_MULTILINEA_NON_PECHADO, 0);
                     saltarLexema();
@@ -729,16 +753,16 @@ void _comentarios() {
                     estado = 2;
                 }
                 break;
-            case 2: // Se é un comentario múltiple e se leu un *:
+            case 2: // Comentario multiliña e leuse '*'
                 c = segCaracter();
-                if (c == '/') {
+                if (c == '/') { // Se se le '/', péchase o comentario e sáltase
                     saltarLexema();
                     saltado = 1;
-                } else {
+                } else {        // Se non se le unha '/', vólvese ao estado anterior
                     estado = 1;
                 }
                 break;
-            case 3: // Se despois da primeira / vén algo distinto de / ou *, pode ser / ou DIVIGUAL
+            case 3: // Despois da primeira '/' leuse algo distinto de '/' ou '*', pode ser '/' ou DIVIGUAL
                 if (c == '=') {
                     _aceptarLexema(DIVIGUAL, 0);
                 } else {
@@ -751,8 +775,8 @@ void _comentarios() {
 }
 
 
+// Función auxiliar que libera a memoria asociada a un lexema lido anteriormente e restablece os valores inicias
 void _limparComp() {
-    // Se xa se lera un lexema, libérase a memoria asociada e reestablécense os valores
     if (comp.lexema != NULL) {
         free(comp.lexema);
         comp.comp_lexico = 0;
@@ -761,11 +785,12 @@ void _limparComp() {
 }
 
 
-// Inicio do analizador léxico
+// Función que inicia o analizador léxico
 void iniciarAnalizadorLexico(char *nomeFicheiro) {
     iniciarSistemaEntrada(nomeFicheiro);
 }
 
+// Función que le o seguinte compoñente léxico do código fonte
 CompLexico segCompLexico() {
     int estado = 0;
     _limparComp();
@@ -856,7 +881,7 @@ CompLexico segCompLexico() {
                         case ';':
                             _aceptarLexema(';', 0);
                             break;
-                        case EOF:                   // Se é EOF, indícase para finalizar
+                        case EOF:                   // Se é EOF, indícase para finalizar a análise léxica
                             comp.lexema = NULL;
                             comp.comp_lexico = EOF;
                             break;
@@ -1034,7 +1059,7 @@ CompLexico segCompLexico() {
     return comp;
 }
 
-// Finalización do analizador léxico
+// Función que finaliza o analizador léxico
 void finalizarAnalizadorLexico() {
     _limparComp();
     finalizarSistemaEntrada();

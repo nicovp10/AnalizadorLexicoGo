@@ -11,16 +11,17 @@ INCLUDES = -I $(HEADER_FILES_DIR)
 OUTPUT = analizadorLexicoGo
 
 # Ficheiros .h
-LIB_HEADERS = analizadorLexico.h analizadorSintactico.h definicions.h sistemaEntrada.h taboaSimbolos.h xestionErros.h abb.h
+LIB_HEADERS = definicions.h analizadorLexico.h analizadorSintactico.h sistemaEntrada.h taboaSimbolos.h abb.h xestionErros.h
 
 # Ficheiros .c
-SRCS = analizadorLexico.c analizadorSintactico.c main.c sistemaEntrada.c taboaSimbolos.c xestionErros.c abb.c
+SRCS = main.c analizadorLexico.c analizadorSintactico.c sistemaEntrada.c taboaSimbolos.c abb.c xestionErros.c
 
 # Ficheros .o: todos os .o cun análogo .c en SRCS
 OBJS = $(SRCS:.c=.o)
 
 
 # REGRA 1: xera o executable, dependencia dos .o
+# Tras xeralos borra os .o
 $(OUTPUT): $(OBJS)
 	$(CC) -o $(OUTPUT) $(OBJS)
 	rm *.o

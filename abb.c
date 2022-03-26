@@ -99,7 +99,7 @@ void insertar(abb *A, tipoelem E) {
         (*A)->info.comp_lexico = E.comp_lexico;
         (*A)->info.lexema = malloc((strlen(E.lexema) + 1) * sizeof(char));
         strcpy((*A)->info.lexema, E.lexema);
-        (*A)->info.lexema[strlen(E.lexema)] = '\0';
+        // Non se engade o '\0' xa que se mete ao final
         (*A)->izq = NULL;
         (*A)->der = NULL;
         return;
