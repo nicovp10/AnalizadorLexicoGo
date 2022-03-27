@@ -606,7 +606,7 @@ void _rune() {  // Moi similar a un string interpretado, pero dun só caracter
                             for (int i = 0; i < 2; i++) {    // Lense os dous valores octais que faltan
                                 c = segCaracter();
                                 if (!_serOctal(c)) { // Se non son valores octais,
-                                                             //     lánzase un erro por ser poucos díxitos octais
+                                    //     lánzase un erro por ser poucos díxitos octais
                                     _lanzarErro(BYTE_OCT_POUCOS_DIXITOS, 1);
                                     break;
                                 }
@@ -679,7 +679,7 @@ void _strings() {
                                 for (int i = 0; i < 2; i++) {   // Lense os dous valores octais que faltan
                                     c = segCaracter();
                                     if (!_serOctal(c)) { // Se non son valores octais,
-                                                                 //     lánzase un erro por ser poucos díxitos octais
+                                        //     lánzase un erro por ser poucos díxitos octais
                                         _lanzarErro(BYTE_OCT_POUCOS_DIXITOS, 1);
                                         break;
                                     }

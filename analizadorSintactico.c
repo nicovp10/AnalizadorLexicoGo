@@ -12,7 +12,9 @@ void analizadorSintactico(char *nomeFicheiro) {
 
     printf("----- INICIO DA ANÁLISE -----\n");
     while ((comp = segCompLexico()).comp_lexico != EOF) {
-        printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
+        if (comp.lexema != NULL) { // Realízase esta comprobación xa que en caso de erro será NULL
+            printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
+        }
     }
     printf("-----  FIN DA ANÁLISE   -----\n");
 

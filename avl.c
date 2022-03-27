@@ -165,7 +165,7 @@ void insertar(avl *A, tipoelem E) {
         // Compróbase que o pai non sexa nulo, xa que para reestruturar a árbore debe ter mínimo altura 2
         //  Con altura 1, o pai do raíz é nulo
         if ((*A)->pai != NULL) {
-            _reestruturar(A);
+            //_reestruturar(A);
         }
     } else {
         insertar(&(*A)->izq, E);
@@ -178,7 +178,7 @@ void insertar(avl *A, tipoelem E) {
         // Compróbase que o pai non sexa nulo, xa que para reestruturar a árbore debe ter mínimo altura 2
         //  Con altura 1, o pai do raíz é nulo
         if ((*A)->pai != NULL) {
-            _reestruturar(A);
+            //_reestruturar(A);
         }
     }
 }
