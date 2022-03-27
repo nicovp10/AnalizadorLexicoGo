@@ -1,5 +1,5 @@
-#ifndef P1_TABOASIMBOLOS_H
-#define P1_TABOASIMBOLOS_H
+#ifndef TABOASIMBOLOS_H
+#define TABOASIMBOLOS_H
 
 #include "definicions.h"
 

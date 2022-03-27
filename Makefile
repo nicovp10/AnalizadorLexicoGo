@@ -11,10 +11,10 @@ INCLUDES = -I $(HEADER_FILES_DIR)
 OUTPUT = analizadorLexicoGo
 
 # Ficheiros .h
-LIB_HEADERS = definicions.h analizadorLexico.h analizadorSintactico.h sistemaEntrada.h taboaSimbolos.h abb.h xestionErros.h
+LIB_HEADERS = definicions.h analizadorLexico.h analizadorSintactico.h sistemaEntrada.h taboaSimbolos.h avl.h xestionErros.h
 
 # Ficheiros .c
-SRCS = main.c analizadorLexico.c analizadorSintactico.c sistemaEntrada.c taboaSimbolos.c abb.c xestionErros.c
+SRCS = main.c analizadorLexico.c analizadorSintactico.c sistemaEntrada.c taboaSimbolos.c avl.c xestionErros.c
 
 # Ficheros .o: todos os .o cun análogo .c en SRCS
 OBJS = $(SRCS:.c=.o)

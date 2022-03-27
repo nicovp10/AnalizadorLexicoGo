@@ -2,14 +2,14 @@
 #include <string.h>
 
 #include "taboaSimbolos.h"
-#include "abb.h"
+#include "avl.h"
 
 
-abb TS;
+avl TS;
 
 
 // Función auxiliar que realiza un recorrido inorde da árbore
-void _auxImprimir(abb A) {
+void _auxImprimir(avl A) {
     tipoelem E;
     if (!vacia(A)) {
         _auxImprimir(izq(A));

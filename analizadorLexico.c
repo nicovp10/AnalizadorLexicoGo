@@ -498,7 +498,7 @@ void _numerico() {
                         if (!isxdigit(c)) { // Se non se le nin 'p' ou 'P' nin '_' nin un díxito hexadecimal,
                             //  lánzase erro xa que se esperaba o expoñente
                             // Devólvese o caracter que activou a condición de erro
-                            _lanzarErro(FLOAT_HEX_MAL_FORMADO, 1);
+                            _lanzarErro(FLOAT_HEX_EXPO_MAL_FORMADO, 1);
                         }
                 }
                 break;
@@ -508,7 +508,7 @@ void _numerico() {
                 } else {           // Se non se le un díxito hexadecimal,
                     //  lánzase erro xa que se esperaba o expoñente
                     // Devólvense dous caracteres: (...)_{c}
-                    _lanzarErro(FLOAT_HEX_MAL_FORMADO, 2);
+                    _lanzarErro(FLOAT_HEX_EXPO_MAL_FORMADO, 2);
                 }
                 break;
             case 28: // Inicio do expoñente dun hex_float_lit

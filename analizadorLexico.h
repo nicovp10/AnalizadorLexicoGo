@@ -1,5 +1,5 @@
-#ifndef P1_ANALIZADORLEXICO_H
-#define P1_ANALIZADORLEXICO_H
+#ifndef ANALIZADORLEXICO_H
+#define ANALIZADORLEXICO_H
 
 
 #include "definicions.h"

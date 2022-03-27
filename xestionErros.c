@@ -36,7 +36,7 @@ void lanzarErro(int codigo) {
         case FLOAT_EXPO_MAL_FORMADO:
             printf("\nERRO: número en punto flotante mal formado.\n\tDetalles: expoñente mal formado\n\n");
             break;
-        case FLOAT_HEX_MAL_FORMADO:
+        case FLOAT_HEX_EXPO_MAL_FORMADO:
             printf("\nERRO: hexadecimal en punto flotante mal formado.\n\tDetalles: esperábase como mínimo un número no expoñente\n\n");
             break;
         case IMAGINARY_MAL_FORMADO:

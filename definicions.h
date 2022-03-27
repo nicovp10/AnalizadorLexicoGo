@@ -1,5 +1,5 @@
-#ifndef P1_DEFINICIONS_H
-#define P1_DEFINICIONS_H
+#ifndef DEFINICIONS_H
+#define DEFINICIONS_H
 
 
 typedef struct {

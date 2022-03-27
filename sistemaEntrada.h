@@ -1,5 +1,5 @@
-#ifndef P1_SISTEMAENTRADA_H
-#define P1_SISTEMAENTRADA_H
+#ifndef SISTEMAENTRADA_H
+#define SISTEMAENTRADA_H
 
 
 #include "definicions.h"

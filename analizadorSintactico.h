@@ -1,5 +1,5 @@
-#ifndef P1_ANALIZADORSINTACTICO_H
-#define P1_ANALIZADORSINTACTICO_H
+#ifndef ANALIZADORSINTACTICO_H
+#define ANALIZADORSINTACTICO_H
 
 
 // Función que invoca ao analizador sintáctico
