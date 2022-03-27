@@ -243,7 +243,7 @@ void aceptarLexema(CompLexico *comp) {
      * na última posición dun bloque e no bloque seguinte completo. O tamaño deste
      * lexema será o máximo permitido
      */
-    if (strlen(comp->lexema) > TAM + 1) {
+    if (tam_lexema > TAM + 1) {
         free(comp->lexema);
         comp->lexema = NULL;
         lanzarErro(LEXEMA_TAM_EXCEDIDO);

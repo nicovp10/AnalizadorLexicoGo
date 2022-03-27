@@ -1,4 +1,4 @@
 .idea
 cmake-build-debug
 CMakeLists.txt
-analizadorLexico
+analizadorLexicoGo
