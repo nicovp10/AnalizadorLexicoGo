@@ -87,46 +87,93 @@ void buscar_nodo(avl A, tipoclave cl, tipoelem *nodo) {
 }
 
 
+// Función auxiliar para copiar a información dun nodo noutro
+void _copiarInformacion(avl *destino, avl *orixe) {
+    if (*destino == NULL) {
+        *destino = malloc(sizeof(struct celda));
+        (*destino)->info.lexema = malloc((strlen((*orixe)->info.lexema) + 1) * sizeof(char));
+    }
+
+    if (*orixe == NULL) {
+        strcpy((*destino)->info.lexema, "");
+        (*destino)->pai = NULL;
+        (*destino)->izq = NULL;
+        (*destino)->der = NULL;
+        (*destino)->fe = 0;
+        (*destino)->info.comp_lexico = 0;
+    } else {
+        strcpy((*destino)->info.lexema, (*orixe)->info.lexema);
+        (*destino)->pai = (*orixe)->pai;
+        (*destino)->izq = (*orixe)->izq;
+        (*destino)->der = (*orixe)->der;
+        (*destino)->fe = (*orixe)->fe;
+        (*destino)->info.comp_lexico = (*orixe)->info.comp_lexico;
+    }
+}
+
 // Función auxiliar para a reestruturación dun nodo da AVL, de ser necesario
 void _reestruturar(avl *A) {
     /*
      * Só é necesaria a reestruturación nos seguintes casos:
-     *      - O nodo pai (n) ten FE = 2 e o propio nodo (n1) ten FE >= 0: rotación DD
-     *      - O nodo pai (n) ten FE = 2 e o propio nodo (n1) ten FE < 0: rotación DI
-     *      - O nodo pai (n) ten FE = -2 e o propio nodo (n1) ten FE <= 0: rotación II
-     *      - O nodo pai (n) ten FE = -2 e o propio nodo (n1) ten FE > 0: rotación ID
+     *      - O propio nodo (n) ten FE = 2 e o nodo fillo dereito (n1) ten FE >= 0: rotación DD
+     *      - O propio nodo (n) ten FE = 2 e o nodo fillo dereito (n1) ten FE < 0: rotación DI
+     *      - O propio nodo (n) ten FE = -2 e o nodo fillo esquerdo (n1) ten FE <= 0: rotación II
+     *      - O propio nodo (n) ten FE = -2 e o nodo fillo esquerdo (n1) ten FE > 0: rotación ID
      */
-    if ((*A)->pai->fe == 2) {
-        if ((*A)->fe >= 0) { // Rotación DD
-            (*A)->pai->der = (*A)->izq; // n->der = n1->izq;
-            (*A)->izq = (*A)->pai;      // n1->izq = n;
-            (*A)->pai = *A;             // n = n1;
-            (*A)->pai->fe = 0;
+    if ((*A)->fe == 2) {
+        if ((*A)->der->fe >= 0) { // Rotación DD
+            avl n_pai = (*A)->pai;
+            avl n1 = (*A)->der;
+            avl n1_izq = n1->izq;
+
+            (*A)->der = n1_izq; // n->der = n1->izq
+            if (n1_izq != NULL) {
+                n1_izq->pai = *A; // Modifícase n1 para que coincida coa estrutura da AVL
+            }
+
+            n1->izq = *A; // n1->izq = n
+            (*A)->pai = n1; // Modifícase o pai de n para que coincida coa estrutura da AVL
+
+            // Modifícanse os factores de equilibrio de n e n1
             (*A)->fe = 0;
+            n1->fe = 0;
+
+            // TODO comentar
+            n1->pai = n_pai;
+            if (n_pai == NULL) {
+                *A = n1;
+            } else {
+                if (n_pai->der == *A) {
+                    // Se
+                    n_pai->der = n1;
+                } else {
+                    n_pai->izq = n1;
+                }
+            }
         } else {             // Rotación DI
             // Nota: n2 é o fillo esquerdo de n1
-            (*A)->izq = (*A)->izq->der;      // n1->izq = n2->der;
-            (*A)->izq->der = *A;             // n2->der = n1;
-            (*A)->pai->der = (*A)->izq->izq; // n->der = n2->izq;
-            (*A)->izq->izq = (*A)->pai;      // n2->izq = n;
-            (*A)->pai = (*A)->izq;           // n = n2;
-            (*A)->pai->fe = 0;
+            (*A)->der->izq = (*A)->der->izq->der; // n1->izq = n2->der;
+            (*A)->der->izq->der = (*A)->der;      // n2->der = n1;
+            (*A)->der = (*A)->der->izq->izq;      // n->der = n2->izq;
+            (*A)->der->izq->izq = *A;             // n2->izq = n;
+            *A = (*A)->der->izq;                  // n = n2;
             (*A)->fe = 0;
+            (*A)->der->fe = 0;
         }
-    } else if ((*A)->pai->fe == -2) {
-        if ((*A)->fe <= 0) { // Rotación II
-            (*A)->pai->izq = (*A)->der; // n->izq = n1->der;
-            (*A)->der = (*A)->pai;      // n1->der = n;
-            (*A)->pai = *A;             // n = n1;
-            (*A)->pai->fe = 0;
+    } else if ((*A)->fe == -2) {
+        if ((*A)->izq->fe <= 0) { // Rotación II
+            (*A)->izq = (*A)->izq->der; // n->izq = n1->der;
+            (*A)->izq->der = (*A);      // n1->der = n;
+            *A = (*A)->izq;             // n = n;
             (*A)->fe = 0;
+            (*A)->izq->fe = 0;
         } else {             // Rotación ID
             // Nota: n2 é o fillo dereito de n1
-            (*A)->der = (*A)->der->izq;      // n1->der = n2->izq;
-            (*A)->der->izq = *A;             // n2->izq = n1;
-            (*A)->pai->izq = (*A)->der->der; // n->izq = n2->der;
-            (*A)->der->der = (*A)->pai;      // n2->der = n;
-            (*A)->pai = (*A)->der;           // n = n2;
+            (*A)->izq->der = (*A)->izq->der->izq; // n1->der = n2->izq;
+            (*A)->izq->der->izq = (*A)->izq;      // n2->izq = n1;
+            (*A)->izq = (*A)->izq->der->der;      // n->izq = n2->der;
+            (*A)->izq->der->der = *A;             // n2->der = n;
+            *A = (*A)->izq->der;                  // n = n2;
             (*A)->pai->fe = 0;
             (*A)->fe = 0;
         }
@@ -137,7 +184,7 @@ void _reestruturar(avl *A) {
 // Función que inserta un novo nodo na árbore (presuponse que non existe un nodo coa misma clave nesta)
 void insertar(avl *A, tipoelem E) {
     if (vacia(*A)) { // Se é o primeiro nodo, corresponde á raíz
-        *A = (avl) malloc(sizeof(struct celda));
+        *A = malloc(sizeof(struct celda));
         (*A)->info.comp_lexico = E.comp_lexico;
         (*A)->info.lexema = malloc((strlen(E.lexema) + 1) * sizeof(char));
         //  Súmaselle 1 para o '\0' que inserta a función strcpy()
@@ -161,12 +208,7 @@ void insertar(avl *A, tipoelem E) {
             (*A)->der->pai = *A;
         }
         (*A)->fe++; // Se se inserta á dereita, súmase 1 ao FE do pai
-
-        // Compróbase que o pai non sexa nulo, xa que para reestruturar a árbore debe ter mínimo altura 2
-        //  Con altura 1, o pai do raíz é nulo
-        if ((*A)->pai != NULL) {
-            //_reestruturar(A);
-        }
+        _reestruturar(A);
     } else {
         insertar(&(*A)->izq, E);
         // Se non ten pai asignado (o caso dun nodo insertado na chamada á función anterior), engádeselle o nodo desta chamada á función
@@ -174,11 +216,6 @@ void insertar(avl *A, tipoelem E) {
             (*A)->izq->pai = *A;
         }
         (*A)->fe--; // Se se inserta á dereita, réstase 1 ao FE do pai
-
-        // Compróbase que o pai non sexa nulo, xa que para reestruturar a árbore debe ter mínimo altura 2
-        //  Con altura 1, o pai do raíz é nulo
-        if ((*A)->pai != NULL) {
-            //_reestruturar(A);
-        }
+        _reestruturar(A);
     }
 }

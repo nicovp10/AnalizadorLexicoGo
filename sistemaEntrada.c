@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "sistemaEntrada.h"
+#include "analizadorLexico.h"
 #include "xestionErros.h"
 
 #define TAM 64
@@ -26,6 +27,9 @@ typedef struct {
 
 Buffer buf;
 FILE *f_codigo_fonte;
+
+// Esta variable serve para controlar o número de caracteres que ten o lexema actual
+int chars_lex_actual = 0;
 
 
 // Función auxiliar que inicia o buffer cos valores necesarios
@@ -74,7 +78,7 @@ void iniciarSistemaEntrada(char *nomeFicheiro) {
     f_codigo_fonte = fopen(nomeFicheiro, "r");
 
     if (f_codigo_fonte == NULL) {
-        lanzarErro(FICHEIRO_NON_ATOPADO);
+        lanzarErro(-1, FICHEIRO_NON_ATOPADO);
         exit(EXIT_FAILURE);
     }
 
@@ -102,9 +106,11 @@ char segCaracter() {
                 c = segCaracter();      // Chamada recursiva á función para ler un caracter xa que nesta chamada leuse o EOF de final de bloque
             } else {                              // Se se chegou ao fin de ficheiro, devólvese EOF
                 buf.dianteiro++; // Móvese de posición o punteiro
+                chars_lex_actual++;
             }
         } else {                                    // Se o caracter lido non é EOF, soamente se move de posición o punteiro
             buf.dianteiro++;
+            chars_lex_actual++;
         }
     } else { // Se é o bloque B:
         // O proceso é análogo ao do bloque A
@@ -119,9 +125,11 @@ char segCaracter() {
                 c = segCaracter();
             } else {
                 buf.dianteiro++;
+                chars_lex_actual++;
             }
         } else {
             buf.dianteiro++;
+            chars_lex_actual++;
         }
     }
 
@@ -187,55 +195,13 @@ void devolverCaracter() {
         }
         buf.dianteiro--;
     }
+
+    chars_lex_actual--;
 }
 
 // Función que acepta o lexema que se está lendo actualmente
 void aceptarLexema(CompLexico *comp) {
     int tam_lexema;
-    // Compróbanse a posición relativa entre ambos punteiros do buffer
-    // As dúas primeiras comprobacións son se os punteiros están en bloques distintos
-    if (buf.inicio < TAM && buf.dianteiro >= TAM) {         // Se inicio está en A e dianteiro en B:
-        // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
-        //  Súmaselle 1 para o '\0'
-        tam_lexema = buf.dianteiro - buf.inicio;
-        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
-
-        // Cópiase a parte do bloque A no campo do lexema
-        strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
-
-        // Engádese o '\0' ao final para evitar warnings/erros na xestión da memoria
-        comp->lexema[(TAM - buf.inicio) * sizeof(char)] = '\0';
-
-        // Concaténase a parte do bloque B no campo do lexema
-        strncat(comp->lexema, buf.B, (buf.dianteiro - TAM) * sizeof(char));
-    } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
-        // Resérvase a memoria restando 2*TAM menos inicio máis dianteiro para obter o número de chars a reservar
-        // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
-        //  Súmaselle 1 para o '\0'
-        tam_lexema = 2 * TAM - buf.inicio + buf.dianteiro;
-        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
-
-        strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
-        comp->lexema[(2 * TAM - buf.inicio) * sizeof(char)] = '\0';
-        strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
-    } else {                                                // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
-        // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
-        //  Súmaselle 1 para o '\0'
-        tam_lexema = buf.dianteiro - buf.inicio;
-        comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
-
-        // Compróbase o bloque no que está:
-        if (buf.activo == 0) {
-            strncpy(comp->lexema, buf.A + buf.inicio, (buf.dianteiro - buf.inicio) * sizeof(char));
-        } else {
-            strncpy(comp->lexema, buf.B + buf.inicio - TAM, (buf.dianteiro - buf.inicio) * sizeof(char));
-        }
-    }
-
-    // Engádese o '\0' ao final para evitar warnings / erros na xestión da memoria
-    comp->lexema[tam_lexema] = '\0';
-
-    saltarLexema();
 
     /*
      * Compróbase se o lexema excede o tamaño máximo.
@@ -243,16 +209,71 @@ void aceptarLexema(CompLexico *comp) {
      * na última posición dun bloque e no bloque seguinte completo. O tamaño deste
      * lexema será o máximo permitido
      */
-    if (tam_lexema > TAM + 1) {
+    if (chars_lex_actual <= (TAM + 1)) {
+        // Compróbanse a posición relativa entre ambos punteiros do buffer
+        // As dúas primeiras comprobacións son se os punteiros están en bloques distintos
+        if (buf.inicio < TAM && buf.dianteiro >= TAM) {         // Se inicio está en A e dianteiro en B:
+            // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
+            //  Súmaselle 1 para o '\0'
+            tam_lexema = buf.dianteiro - buf.inicio;
+            comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
+
+            // Cópiase a parte do bloque A no campo do lexema
+            strncpy(comp->lexema, buf.A + buf.inicio, (TAM - buf.inicio) * sizeof(char));
+
+            // Engádese o '\0' ao final para evitar warnings/erros na xestión da memoria
+            comp->lexema[(TAM - buf.inicio) * sizeof(char)] = '\0';
+
+            // Concaténase a parte do bloque B no campo do lexema
+            strncat(comp->lexema, buf.B, (buf.dianteiro - TAM) * sizeof(char));
+        } else if (buf.inicio >= TAM && buf.dianteiro < TAM) {  // Se inicio está en B e dianteiro en A:
+            // Resérvase a memoria restando 2*TAM menos inicio máis dianteiro para obter o número de chars a reservar
+            // Realízase esta resta de forma diferente para adaptarse ao valor dos punteiros
+            //  Súmaselle 1 para o '\0'
+            tam_lexema = 2 * TAM - buf.inicio + buf.dianteiro;
+            comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
+
+            strncpy(comp->lexema, buf.B + buf.inicio - TAM, (2 * TAM - buf.inicio) * sizeof(char));
+            comp->lexema[(2 * TAM - buf.inicio) * sizeof(char)] = '\0';
+            strncat(comp->lexema, buf.A, buf.dianteiro * sizeof(char));
+        } else {                                                // Se os dous punteiros están no mesmo bloque e inicio está antes que dianteiro:
+            // Resérvase a memoria restando dianteiro menos inicio para obter o número de chars a reservar
+            //  Súmaselle 1 para o '\0'
+            tam_lexema = buf.dianteiro - buf.inicio;
+            comp->lexema = malloc((tam_lexema + 1) * sizeof(char));
+
+            // Compróbase o bloque no que está:
+            if (buf.activo == 0) {
+                strncpy(comp->lexema, buf.A + buf.inicio, (buf.dianteiro - buf.inicio) * sizeof(char));
+            } else {
+                strncpy(comp->lexema, buf.B + buf.inicio - TAM, (buf.dianteiro - buf.inicio) * sizeof(char));
+            }
+        }
+        // A opción de que estén os dous punteiros no mesmo bloque e inicio despois de dianteiro non é posible,
+        //  xa que infrinxiría a comprobación global
+
+
+        // Engádese o '\0' ao final para evitar warnings / erros na xestión da memoria
+        comp->lexema[tam_lexema] = '\0';
+    } else {
         free(comp->lexema);
         comp->lexema = NULL;
-        lanzarErro(LEXEMA_TAM_EXCEDIDO);
+        lanzarErro(obterLineaActual(), LEXEMA_TAM_EXCEDIDO);
     }
+
+    saltarLexema();
 }
 
 // Función que salta o lexema que se está lendo actualmente
 void saltarLexema() {
-    buf.inicio = buf.dianteiro;
+    // Reaxuste necesario se o punteiro dianteiro está na última posición do segundo bloque
+    if (buf.dianteiro == 2 * TAM) {
+        buf.inicio = 0;
+    } else {
+        buf.inicio = buf.dianteiro;
+    }
+
+    chars_lex_actual = 0;
 }
 
 // Función que finaliza o sistema de entrada

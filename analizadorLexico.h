@@ -5,6 +5,9 @@
 #include "definicions.h"
 
 
+// Función que devolve a línea actual de análise
+int obterLineaActual();
+
 // Función que inicia o analizador léxico
 void iniciarAnalizadorLexico(char *nomeFicheiro);
 

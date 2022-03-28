@@ -19,7 +19,7 @@
 
 
 // Función que dado un código de erro imprime por pantalla unha mensaxe concreta
-void lanzarErro(int codigo);
+void lanzarErro(int linea, int codigo);
 
 
 #endif
