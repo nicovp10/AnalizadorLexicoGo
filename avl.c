@@ -55,7 +55,6 @@ void crear(avl *A) {
 // Función que destrúe a árbore, liberando a memoria
 void destruir(avl *A) {
     if (*A != NULL) {
-        //destruir(&(*A)->pai); // TODO ao mellor non é necesario
         destruir(&(*A)->izq);
         destruir(&(*A)->der);
         free((*A)->info.lexema);
