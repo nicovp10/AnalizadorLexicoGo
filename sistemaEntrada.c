@@ -14,9 +14,9 @@ typedef struct {
     char B[TAM + 1];
     int inicio;     // Toma valores de 0 a 2*sizeof(A)-1, para recorrer ambos bloques
     int dianteiro;  // Toma valores de 0 a 2*sizeof(A)-1, para recorrer ambos bloques
-    int activo; // Indica que bloque está activo: A = 0 | B = 1
-    int cargar; // Indica se se precisa cargar o seguinte bloque:
-    //      Non se precisa cargar = 0 | Precísase cargar = 1
+    int activo;     // Indica que bloque está activo: A = 0 | B = 1
+    int cargar;     // Indica se se precisa cargar o seguinte bloque:
+                    //      Non se precisa cargar = 0 | Precísase cargar = 1
     /*
      * O indicador "cargar" empregarase no caso no que se devolvan caracteres e se retroceda
      * de bloque na devolución, para que non se sobreescriban así os caracteres pendentes de
@@ -28,8 +28,8 @@ typedef struct {
 Buffer buf;
 FILE *f_codigo_fonte;
 
-// Esta variable serve para controlar o número de caracteres que ten o lexema actual
-int chars_lex_actual = 0;
+
+int chars_lex_actual = 0; // Esta variable serve para controlar o número de caracteres que ten o lexema actual
 
 
 // Función auxiliar que inicia o buffer cos valores necesarios
@@ -139,7 +139,6 @@ char segCaracter() {
 // Función que ignora un caracter, saltándoo na memoria intermedia
 void ignorarCaracter() {
     int modificar_dianteiro = 0;
-
     /*
      * A variable "modificar_dianteiro" serve para ter os valores correctos nos punteiros naqueles casos
      * nos que só se lera un caracter do lexema actual. Nos casos nos que os punteiros permanecen no mesmo
@@ -149,6 +148,7 @@ void ignorarCaracter() {
      * cun valor pertencente ao bloque no cal se estaba anteriormente, provocando así valores inconsistentes e
      * accesos a memoria non permitidos.
      */
+
     if (buf.dianteiro - buf.inicio == 1) {
         modificar_dianteiro = 1;
     }

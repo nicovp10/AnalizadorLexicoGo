@@ -1,9 +1,19 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 
 #include "definicions.h"
+
+
+/*
+ * Optouse por unha implementación dunha árbore AVL para conseguir así unha mellor eficiencia computacional
+ * nas búsquedas de lexemas na táboa de símbolos.
+ *
+ * Para a reestruturación da AVL usouse un factor de equilibrio (FE) en cada nodo, que será o valor resultante da operación:
+ * altura(subarbore_dereita) - altura(subarbore_esquerda). Desta maneira saberase cando é necesario reestruturar a árbore.
+ * Para a reestruturación xógase co desapilamento das chamadas recursivas á función insertar(), propagando o reaxuste dos
+ * FE correspondentes cara arriba ata acadar un equilibrio. Tamén se empregou un punteiro ao pai de cada nodo para realizar as rotacións.
+ */
 
 
 typedef char *tipoclave;
@@ -18,7 +28,7 @@ struct celda {
 typedef struct celda *avl;
 
 
-int equilibrar;
+int equilibrar; // Variable usada para saber cando se ten que deixar de propagar o equilibrio cara arriba
 
 
 // Función auxilizar que extrae a clave dun nodo
@@ -108,7 +118,7 @@ void _DD(avl *A) {
     n1->pai = n_pai; // Modifícase o pai de n1 ao novo (pai de n)
     // n = n1
     if (n_pai == NULL) {
-        *A = n1; // Se n non tiña pai, modifícase n a n1
+        *A = n1; // Se n non tiña pai, cámbiase n a n1
     } else {
         if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n, cámbiase a n1
             n_pai->izq = n1;
@@ -117,7 +127,7 @@ void _DD(avl *A) {
         }
     }
 
-    // Modifícanse os factores de equilibrio de n e n1
+    // Modifícanse os factores de equilibrio
     (*A)->fe = 0;
     (*A)->izq->fe = 0;
 }
@@ -126,7 +136,7 @@ void _DD(avl *A) {
 void _DI(avl *A) {
     avl n_pai = (*A)->pai;
     avl n = *A;
-    avl n2 = (*A)->der->izq;
+    avl n2 = (*A)->der->izq; // n2 é o fillo esquerdo de n1, que á súa vez é o fillo dereito de n
     avl n2_der = n2->der;
     avl n2_izq = n2->izq;
 
@@ -149,23 +159,23 @@ void _DI(avl *A) {
     n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
     // n = n2
     if (n_pai == NULL) {
-        *A = n2; // Se n non tiña pai, modifícase n a n2
+        *A = n2; // Se n non tiña pai, cámbiase n a n2
     } else {
-        if (n_pai->izq == *A) {  // Se o fillo esquerdo do pai de n era n2, cámbiase a n2
+        if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n2, cámbiase a n2
             n_pai->izq = n2;
-        } else {                            // Se o fillo esquerdo do pai de n non era n2, entón cámbiase o fillo dereito a n2
+        } else {                // Se o fillo esquerdo do pai de n non era n2, entón cámbiase o fillo dereito a n2
             n_pai->der = n2;
         }
     }
 
     // Modifícanse os factores de equilibrio en función do resultado
-    if ((*A)->fe == 1) {
+    if ((*A)->fe == 1) {        // Se n2 (o novo n) ten FE = 1:
         (*A)->izq->fe = -1;
         (*A)->der->fe = 0;
-    } else if ((*A)->fe == -1){
+    } else if ((*A)->fe == -1){ // Se non se ten FE = -1:
         (*A)->izq->fe = 0;
         (*A)->der->fe = 1;
-    } else {
+    } else {                    // Se non se ten FE = 0:
         (*A)->izq->fe = 0;
         (*A)->der->fe = 0;
     }
@@ -189,7 +199,7 @@ void _II(avl *A) {
     n1->pai = n_pai; // Modifícase o pai de n1 ao novo (pai de n)
     // n = n1
     if (n_pai == NULL) {
-        *A = n1; // Se n non tiña pai, modifícase n a n1
+        *A = n1; // Se n non tiña pai, cámbiase n a n1
     } else {
         if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n, cámbiase a n1
             n_pai->izq = n1;
@@ -198,7 +208,7 @@ void _II(avl *A) {
         }
     }
 
-    // Modifícanse os factores de equilibrio de n e n1
+    // Modifícanse os factores de equilibrio
     (*A)->fe = 0;
     (*A)->der->fe = 0;
 }
@@ -207,7 +217,7 @@ void _II(avl *A) {
 void _ID(avl *A) {
     avl n_pai = (*A)->pai;
     avl n = *A;
-    avl n2 = (*A)->izq->der;
+    avl n2 = (*A)->izq->der; // n2 é o fillo dereito de n1, que á súa vez é o fillo esquerdo de n
     avl n2_der = n2->der;
     avl n2_izq = n2->izq;
 
@@ -230,7 +240,7 @@ void _ID(avl *A) {
     n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
     // n = n2
     if (n_pai == NULL) {
-        *A = n2; // Se n non tiña pai, modifícase n a n2
+        *A = n2; // Se n non tiña pai, cámbiase n a n2
     } else {
         if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n, cámbiase a n2
             n_pai->izq = n2;
@@ -255,7 +265,6 @@ void _ID(avl *A) {
 
 // Función auxiliar para a reestruturación dun nodo da AVL, de ser necesario
 void _reestruturar(avl *A) {
-    // TODO na subárbore esquerda hai FE = 2 en todos os nodos
     /*
      * Só é necesaria a reestruturación nos seguintes casos:
      *      - O propio nodo (n) ten FE = 2 e o nodo fillo dereito (n1) ten FE >= 0: rotación DD
@@ -264,15 +273,15 @@ void _reestruturar(avl *A) {
      *      - O propio nodo (n) ten FE = -2 e o nodo fillo esquerdo (n1) ten FE > 0: rotación ID
      */
     if ((*A)->fe == 2) {
-        if ((*A)->der->fe >= 0) {   // Rotación DD
+        if ((*A)->der->fe >= 0) { // Rotación DD
             _DD(A);
-        } else {                    // Rotación DI
+        } else {                  // Rotación DI
             _DI(A);
         }
     } else if ((*A)->fe == -2) {
-        if ((*A)->izq->fe <= 0) {   // Rotación II
+        if ((*A)->izq->fe <= 0) { // Rotación II
             _II(A);
-        } else {                    // Rotación ID
+        } else {                  // Rotación ID
             _ID(A);
         }
     }
@@ -281,18 +290,17 @@ void _reestruturar(avl *A) {
 
 // Función que inserta un novo nodo na árbore (presuponse que non existe un nodo coa misma clave nesta)
 void insertar(avl *A, tipoelem E) {
-    if (vacia(*A)) { // Se é o primeiro nodo, corresponde á raíz
+    if (vacia(*A)) {
         *A = malloc(sizeof(struct celda));
         (*A)->info.comp_lexico = E.comp_lexico;
         (*A)->info.lexema = malloc((strlen(E.lexema) + 1) * sizeof(char));
         //  Súmaselle 1 para o '\0' que inserta a función strcpy()
         strcpy((*A)->info.lexema, E.lexema);
-        // O pai inicialízase a NULL e especificarase cando se desapile esta chamada á función
-        (*A)->pai = NULL;
+        (*A)->pai = NULL; // O pai inicialízase a NULL e especificarase cando se desapile esta chamada á función
         (*A)->izq = NULL;
         (*A)->der = NULL;
-        (*A)->fe = 0;       // Ao ser un nodo folla, o FE deste será 0
-        equilibrar = 1;
+        (*A)->fe = 0; // Ao ser un nodo folla, o FE deste será 0
+        equilibrar = 1; // Ao insertarse un nodo actívase o propagación para equilibrar os FE
         return;
     }
 
@@ -307,11 +315,14 @@ void insertar(avl *A, tipoelem E) {
             (*A)->der->pai = *A;
         }
 
+        // Se hai que equilibrar, modifícase o FE
         if (equilibrar) {
             (*A)->fe++;
         }
 
         _reestruturar(A);
+
+        // Se xa se chegou ao equilibrio, non se seguirá propagando o reaxuste cara arriba
         if ((*A)->fe == 0) {
             equilibrar = 0;
         }
@@ -322,11 +333,14 @@ void insertar(avl *A, tipoelem E) {
             (*A)->izq->pai = *A;
         }
 
+        // Se hai que equilibrar, modifícase o FE
         if (equilibrar) {
             (*A)->fe--;
         }
 
         _reestruturar(A);
+
+        // Se xa se chegou ao equilibrio, non se seguirá propagando o reaxuste cara arriba
         if ((*A)->fe == 0) {
             equilibrar = 0;
         }

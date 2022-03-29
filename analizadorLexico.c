@@ -11,7 +11,7 @@
 CompLexico comp = {0, NULL};
 
 // Estas tres variables serven para controlar o caracter actual, a liña do código actual e
-//  se un lexema foi aceptado ou hai erro
+//  se un lexema foi aceptado ou hai algún erro
 char c_actual = ' ';
 int linea_actual = 1;
 int aceptado, erro;

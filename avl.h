@@ -5,7 +5,8 @@
 #include "definicions.h"
 
 
-// TIPO DE DATO OPACO DUNHA AVL
+// TIPO DE DATO OPACO DUNHA ÁRBORE AVL
+
 
 typedef char *tipoclave;
 typedef CompLexico tipoelem;
