@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 
@@ -104,21 +105,21 @@ void _DD(avl *A) {
     n1->izq = *A; // n1->izq = n
     (*A)->pai = n1; // Modifícase o pai de n ao novo (n1)
 
-    // Modifícanse os factores de equilibrio de n e n1
-    (*A)->fe = 0;
-    n1->fe = 0;
-
     n1->pai = n_pai; // Modifícase o pai de n1 ao novo (pai de n)
+    // n = n1
     if (n_pai == NULL) {
         *A = n1; // Se n non tiña pai, modifícase n a n1
     } else {
-        // n = n1
         if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n, cámbiase a n1
             n_pai->izq = n1;
         } else {                // Se o fillo esquerdo do pai de n non era n, entón cámbiase o fillo dereito a n1
             n_pai->der = n1;
         }
     }
+
+    // Modifícanse os factores de equilibrio de n e n1
+    (*A)->fe = 0;
+    (*A)->izq->fe = 0;
 }
 
 // Función auxiliar que realiza unha rotación DI a partir do nodo A
@@ -129,15 +130,13 @@ void _DI(avl *A) {
     avl n2_der = n2->der;
     avl n2_izq = n2->izq;
 
-    // Iníciase cunha rotación II
-
     (*A)->der->izq = n2_der; // n1->izq = n2->der
     if (n2_der != NULL) {
         n2_der->pai = (*A)->der; // Se había un nodo en n2->der, modifícase o pai de n2->der ao novo (n1)
     }
 
     n2->der = (*A)->der; // n2->der = n1
-    *A = n2; // Modifícase o pai de n1 ao novo (n2)
+    (*A)->der->pai = n2; // Modifícase o pai de n1 ao novo (n2)
 
     n->der = n2_izq; // n->der = n2->izq
     if (n2_izq != NULL) {
@@ -145,13 +144,14 @@ void _DI(avl *A) {
     }
 
     n2->izq = n; // n2->izq = n
-    n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
+    (*A)->pai = n2; // Modifícase o pai de n ao novo (n2)
 
+    n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
     // n = n2
     if (n_pai == NULL) {
         *A = n2; // Se n non tiña pai, modifícase n a n2
     } else {
-        if (n_pai->izq == (*A)->der->izq) {  // Se o fillo esquerdo do pai de n era n2, cámbiase a n2
+        if (n_pai->izq == *A) {  // Se o fillo esquerdo do pai de n era n2, cámbiase a n2
             n_pai->izq = n2;
         } else {                            // Se o fillo esquerdo do pai de n non era n2, entón cámbiase o fillo dereito a n2
             n_pai->der = n2;
@@ -162,9 +162,12 @@ void _DI(avl *A) {
     if ((*A)->fe == 1) {
         (*A)->izq->fe = -1;
         (*A)->der->fe = 0;
-    } else { // TODO axustar estes valores. Cando non teñen fillos asígnaselles 1 igual e non pode ser. Ídem en ID
+    } else if ((*A)->fe == -1){
         (*A)->izq->fe = 0;
         (*A)->der->fe = 1;
+    } else {
+        (*A)->izq->fe = 0;
+        (*A)->der->fe = 0;
     }
     (*A)->fe = 0;
 }
@@ -183,12 +186,7 @@ void _II(avl *A) {
     n1->der = *A; // n1->der = n
     (*A)->pai = n1; // Modifícase o pai de n ao novo (n1)
 
-    // Modifícanse os factores de equilibrio de n e n1
-    (*A)->fe = 0;
-    n1->fe = 0;
-
     n1->pai = n_pai; // Modifícase o pai de n1 ao novo (pai de n)
-
     // n = n1
     if (n_pai == NULL) {
         *A = n1; // Se n non tiña pai, modifícase n a n1
@@ -199,6 +197,10 @@ void _II(avl *A) {
             n_pai->der = n1;
         }
     }
+
+    // Modifícanse os factores de equilibrio de n e n1
+    (*A)->fe = 0;
+    (*A)->der->fe = 0;
 }
 
 // Función auxiliar que realiza unha rotación ID a partir dun nodo A
@@ -209,13 +211,13 @@ void _ID(avl *A) {
     avl n2_der = n2->der;
     avl n2_izq = n2->izq;
 
-    (*A)->izq->der = n2_izq; // n1->der = n2-izq
+    (*A)->izq->der = n2_izq; // n1->der = n2->izq
     if (n2_izq != NULL) {
         n2_izq->pai = (*A)->izq; // Se había un nodo en n2->izq, modifícase o pai de n2->izq ao novo (n1)
     }
 
     n2->izq = (*A)->izq; // n2->izq = n1
-    *A = n2; // Modifícase o pai de n1 ao novo (n2)
+    (*A)->izq->pai = n2; // Modifícase o pai de n1 ao novo (n2)
 
     n->izq = n2_der; // n->izq = n2->der
     if (n2_der != NULL) {
@@ -223,25 +225,29 @@ void _ID(avl *A) {
     }
 
     n2->der = n; // n2->der = n
-    n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
+    (*A)->pai = n2; // Modifícase o pai de n ao novo (n2)
 
+    n2->pai = n_pai; // Modifícase o pai de n2 ao novo (pai de n)
     // n = n2
     if (n_pai == NULL) {
         *A = n2; // Se n non tiña pai, modifícase n a n2
     } else {
-        if (n_pai->izq == (*A)->izq->der) {  // Se o fillo esquerdo do pai de n era n2, cámbiase a n2
+        if (n_pai->izq == *A) { // Se o fillo esquerdo do pai de n era n, cámbiase a n2
             n_pai->izq = n2;
-        } else {                            // Se o fillo esquerdo do pai de n non era n2, entón cámbiase o fillo dereito a n2
+        } else {                // Se o fillo esquerdo do pai de n non era n, entón cámbiase o fillo dereito a n2
             n_pai->der = n2;
         }
     }
 
     // Modifícanse os factores de equilibrio en función do resultado
-    if ((*A)->fe == 1) {
+    if ((*A)->fe == 1) {        // Se n2 (o novo n) ten FE = 1:
+        (*A)->izq->fe = -1;
+        (*A)->der->fe = 0;
+    } else if ((*A)->fe == -1){ // Se non se ten FE = -1:
         (*A)->izq->fe = 0;
         (*A)->der->fe = 1;
-    } else {
-        (*A)->izq->fe = -1;
+    } else {                    // Se non se ten FE = 0:
+        (*A)->izq->fe = 0;
         (*A)->der->fe = 0;
     }
     (*A)->fe = 0;
@@ -249,6 +255,7 @@ void _ID(avl *A) {
 
 // Función auxiliar para a reestruturación dun nodo da AVL, de ser necesario
 void _reestruturar(avl *A) {
+    // TODO na subárbore esquerda hai FE = 2 en todos os nodos
     /*
      * Só é necesaria a reestruturación nos seguintes casos:
      *      - O propio nodo (n) ten FE = 2 e o nodo fillo dereito (n1) ten FE >= 0: rotación DD
@@ -302,10 +309,6 @@ void insertar(avl *A, tipoelem E) {
 
         if (equilibrar) {
             (*A)->fe++;
-
-            if ((*A)->fe == 0) {
-                equilibrar = 0;
-            }
         }
 
         _reestruturar(A);
@@ -321,10 +324,6 @@ void insertar(avl *A, tipoelem E) {
 
         if (equilibrar) {
             (*A)->fe--;
-
-            if ((*A)->fe == 0) {
-                equilibrar = 0;
-            }
         }
 
         _reestruturar(A);
@@ -332,4 +331,5 @@ void insertar(avl *A, tipoelem E) {
             equilibrar = 0;
         }
     }
+
 }

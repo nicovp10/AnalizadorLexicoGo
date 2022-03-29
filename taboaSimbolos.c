@@ -21,6 +21,9 @@ void _auxImprimir(avl A) {
 
 // Función que inicia a táboa de símbolos
 void iniciarTS() {
+
+    /*
+     *
     tipoelem keywords[] = {
             {BREAK,       "D"},
             {CASE,        "B"},
@@ -53,9 +56,7 @@ void iniciarTS() {
             {TYPE,        "type"},
             {VAR,         "var"}
     };
-
-    /*
-     *
+     */
     tipoelem keywords[] = {
             {BREAK,       "break"},
             {CASE,        "case"},
@@ -83,7 +84,6 @@ void iniciarTS() {
             {TYPE,        "type"},
             {VAR,         "var"}
     };
-     */
 
     crear(&TS);
     for (int i = 0; i < (sizeof(keywords) / sizeof(tipoelem)); i++) {
