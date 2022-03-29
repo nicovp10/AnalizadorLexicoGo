@@ -22,6 +22,41 @@ void _auxImprimir(avl A) {
 // Función que inicia a táboa de símbolos
 void iniciarTS() {
     tipoelem keywords[] = {
+            {BREAK,       "D"},
+            {CASE,        "B"},
+            {CONTINUE,    "I"},
+            {CHAN,        "A"},
+            {CONST,       "C"},
+            {BREAK,       "J"},
+            {CASE,        "F"},
+            {CHAN,        "H"},
+            {CONST,       "G"},
+            {CONTINUE,    "continue"},
+            {DEFAULT,     "default"},
+            {DEFER,       "defer"},
+            {ELSE,        "else"},
+            {FALLTHROUGH, "fallthrough"},
+            {FOR,         "for"},
+            {FUNC,        "func"},
+            {GO,          "go"},
+            {GOTO,        "goto"},
+            {IF,          "if"},
+            {IMPORT,      "import"},
+            {INTERFACE,   "interface"},
+            {MAP,         "map"},
+            {PACKAGE,     "package"},
+            {RANGE,       "range"},
+            {RETURN,      "return"},
+            {SELECT,      "select"},
+            {STRUCT,      "struct"},
+            {SWITCH,      "switch"},
+            {TYPE,        "type"},
+            {VAR,         "var"}
+    };
+
+    /*
+     *
+    tipoelem keywords[] = {
             {BREAK,       "break"},
             {CASE,        "case"},
             {CHAN,        "chan"},
@@ -48,6 +83,7 @@ void iniciarTS() {
             {TYPE,        "type"},
             {VAR,         "var"}
     };
+     */
 
     crear(&TS);
     for (int i = 0; i < (sizeof(keywords) / sizeof(tipoelem)); i++) {
