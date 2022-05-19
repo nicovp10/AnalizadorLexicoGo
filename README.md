@@ -8,4 +8,4 @@ Para la compilación del analizador léxico se clonará o descargará este repos
 
 Una vez compilado, el analizador léxico se ejecutará por terminal con el siguiente comando: `./analizadorLexicoGo {FICHERO_CODIGO_FUENTE_GO}`. Por ejemplo: `./analizadorLexicoGo concurrentSum.go`.
 
-Como resultado de la ejecución se imprimirá por consola primeramente la tabla de símbolos inicial (contendrá solamente las palabras clave del lenguaje), posteriormente imprimirá todos los componentes léxicos detectados en el código fuente con el formato `< COMP_LEXICO, LEXEMA >`, y finalmente imprimirá la tabla de símbolos resultante tras la ejecución, que contendrá, a mayores de las palabras reservadas, todos los identificadores detectados.
+Como resultado de la ejecución se imprimirá por terminal primeramente la tabla de símbolos inicial (contendrá solamente las palabras clave del lenguaje), posteriormente se imprimirán todos los componentes léxicos detectados en el código fuente con el formato `< COMP_LEXICO, LEXEMA >`, y finalmente se imprimirá la tabla de símbolos resultante tras la ejecución, que contendrá, a mayores de las palabras reservadas, todos los identificadores detectados.
